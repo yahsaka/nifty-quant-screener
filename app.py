@@ -540,7 +540,7 @@ with tab1:
             "otherwise exit at the close of the 20th holding session. "
             "Backtest assumptions include configurable slippage and transaction costs."
         )
-       st.markdown(
+        st.markdown(
             f"""
             <div class="legacy-execution-guide" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; margin-top: 1rem;">
                 
