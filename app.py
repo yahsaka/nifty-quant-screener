@@ -5,6 +5,7 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 from datetime import datetime
+import yfinance as yf
 
 st.set_page_config(page_title="Nifty Quant", page_icon="📈", layout="wide", initial_sidebar_state="collapsed")
 
@@ -60,21 +61,30 @@ div[data-baseweb="select"] > div { background:#111821; border-color:var(--line);
 
 @st.cache_data(ttl=300)
 def load_screener_data():
-    if not os.path.exists(SCREENER_JSON): return None
-    with open(SCREENER_JSON, "r") as f: data = json.load(f)
-    # Safely inject triggers_str globally upon loading data
-    if "signals" in data:
-        for sig in data["signals"]:
-            sig["triggers_str"] = ", ".join(sig.get("triggers", []))
-    return data
+    if os.path.exists(SCREENER_JSON):
+        with open(SCREENER_JSON, "r") as f:
+            return json.load(f)
+    return None
 
 @st.cache_data(ttl=300)
 def load_stock_ohlcv(ticker: str):
     file_path = os.path.join(CACHE_DIR, f"{ticker}.parquet")
-    if not os.path.exists(file_path): return None
-    df = pd.read_parquet(file_path)
-    if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
-    return df
+    if os.path.exists(file_path):
+        df = pd.read_parquet(file_path)
+        if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
+        return df
+    else:
+        # Fallback for Streamlit Cloud: fetch on-the-fly using yfinance if cache is missing
+        try:
+            yf_ticker = ticker if ticker.endswith(".NS") or "." in ticker else f"{ticker}.NS"
+            df = yf.download(yf_ticker, period="1y", progress=False)
+            if df.empty:
+                df = yf.download(ticker, period="1y", progress=False)
+            if isinstance(df.columns, pd.MultiIndex): 
+                df.columns = df.columns.get_level_values(0)
+            return df if not df.empty else None
+        except Exception:
+            return None
 
 def find_cached_ticker(company_name, cache_dir):
     """Fuzzy matching to link full broker company names to local YF ticker symbols."""
