@@ -134,28 +134,7 @@ def find_cached_ticker(company_name, cache_dir):
     """Smart matching using NSE official names, local cache, and heuristics."""
     company_name = str(company_name).strip().upper()
     
-    # 1. Check NSE CSV Mapping via Fuzzy String Matching (Translates names to symbols)
-    nse_csv = "data/nifty500_tickers.csv"
-    if os.path.exists(nse_csv):
-        try:
-            nse_df = pd.read_csv(nse_csv)
-            if "Company Name" in nse_df.columns and "Symbol" in nse_df.columns:
-                nse_names = nse_df["Company Name"].dropna().astype(str).str.upper().tolist()
-                
-                # Check for exact ticker matches first
-                if company_name in nse_df["Symbol"].dropna().astype(str).str.upper().tolist():
-                    return f"{company_name}.NS"
-                
-                # Fuzzy match the company name (cutoff 0.55 allows "MOB LTD" to match "MOBILITY LTD.")
-                matches = difflib.get_close_matches(company_name, nse_names, n=1, cutoff=0.55)
-                if matches:
-                    best_match_name = matches[0]
-                    sym = nse_df[nse_df["Company Name"].str.upper() == best_match_name].iloc[0]["Symbol"]
-                    return f"{sym}.NS"
-        except Exception:
-            pass
-
-    # 2. Heuristic Cleaning & Local Cache Match (Fallback for weird formats)
+    # 1. Clean the input name heavily before comparing
     clean_company = re.sub(r"[^A-Z0-9\s]", "", company_name)
     core_name = clean_company
     for suffix in [" LIMITED", " LTD", " INC", " CORP", " CORPORATION", " COMPANY", " IND ETF", " BEES"]:
@@ -163,30 +142,56 @@ def find_cached_ticker(company_name, cache_dir):
     core_name = core_name.strip()
     core_name_no_space = core_name.replace(" ", "")
 
+    # 2. Check NSE CSV Mapping
+    nse_csv = "data/nifty500_tickers.csv"
+    if os.path.exists(nse_csv):
+        try:
+            nse_df = pd.read_csv(nse_csv)
+            if "Company Name" in nse_df.columns and "Symbol" in nse_df.columns:
+                # Check for exact ticker matches first
+                if company_name in nse_df["Symbol"].dropna().astype(str).str.upper().tolist():
+                    return f"{company_name}.NS"
+                
+                nse_names = nse_df["Company Name"].dropna().astype(str).str.upper().tolist()
+                
+                # Use a STRICT cutoff (0.80) to prevent false positives like Ceigall -> Coal India
+                matches = difflib.get_close_matches(company_name, nse_names, n=1, cutoff=0.80)
+                if matches:
+                    best_match_name = matches[0]
+                    sym = nse_df[nse_df["Company Name"].str.upper() == best_match_name].iloc[0]["Symbol"]
+                    return f"{sym}.NS"
+        except Exception:
+            pass
+
+    # 3. Check Local Cache (for stocks we've already resolved/cached)
     if os.path.exists(cache_dir):
         cached_files = [f.replace(".parquet", "") for f in os.listdir(cache_dir) if f.endswith(".parquet")]
         
         if company_name in cached_files:
             return company_name
             
+        # Check if the cached ticker symbol is a direct substring of the cleaned name
         for ticker in cached_files:
             sym = ticker.replace(".NS", "").upper()
             if sym == core_name_no_space or (len(sym) >= 4 and sym in core_name_no_space):
                 return ticker
-                
-        symbols_only = [t.replace(".NS", "") for t in cached_files]
-        close_symbols = difflib.get_close_matches(core_name_no_space, symbols_only, n=1, cutoff=0.7)
-        if close_symbols:
-            return f"{close_symbols[0]}.NS"
 
-    # 3. Final Fallback (If not Nifty 500 and not cached, e.g. liquid ETFs)
+    # 4. Final Fallback (If not Nifty 500, not cached, and strict match failed)
+    # We create a safer guess by taking the first word, UNLESS it's a known ETF
     words = core_name.split()
-    if len(words) == 1:
-        return f"{words[0]}.NS"
-    elif "LIQUID" in core_name:
+    if not words:
+        return f"{company_name}.NS"
+        
+    if "LIQUID" in core_name:
         return "LIQUIDBEES.NS"
+    elif len(words) == 1:
+        return f"{words[0]}.NS"
     else:
-        return f"{''.join(words[:2])}.NS"
+        # Use the first continuous string as the ticker guess (e.g. HGINFRA instead of H.G.)
+        guessed_ticker = words[0]
+        if len(guessed_ticker) < 3 and len(words) > 1:
+            guessed_ticker = f"{words[0]}{words[1]}"
+        return f"{guessed_ticker}.NS"
 
 
 def parse_broker_file(file_obj):
@@ -575,6 +580,8 @@ with tab1:
                     "otherwise exit at the close of the 20th holding session. "
                     "Backtest assumptions include configurable slippage and transaction costs."
                 )
+                
+                # HTML MUST BE FLUSH LEFT TO AVOID STREAMLIT MARKDOWN PARSING ERRORS
                 st.markdown(
                     f"""
 <div class="legacy-execution-guide" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; margin-top: 1rem;">
