@@ -13,17 +13,29 @@ CACHE_DIR = "data/ohlcv_cache"
 OUTPUT_FILE = "data/latest_screener_results.json"
 
 def get_market_regime() -> bool:
-    """Checks if Nifty 50 is above its 50 EMA today for the market regime filter."""
+    """
+    Checks if Nifty 50 meets the kill-switch criteria.
+    Kill-switch triggers only if Nifty closes below its 200-day EMA 
+    for 3 consecutive sessions. Returns True if Bullish (safe to trade), 
+    False if Bearish (kill-switch active).
+    """
     try:
         nifty = yf.download("^NSEI", period="1y", progress=False)
         if isinstance(nifty.columns, pd.MultiIndex):
             nifty.columns = nifty.columns.get_level_values(0)
         
-        nifty['EMA_50'] = nifty['Close'].ewm(span=50, adjust=False).mean()
-        latest_close = float(nifty['Close'].iloc[-1])
-        latest_ema = float(nifty['EMA_50'].iloc[-1])
+        # Calculate 200-day EMA instead of 50 EMA
+        nifty['EMA_200'] = nifty['Close'].ewm(span=200, adjust=False).mean()
         
-        return latest_close > latest_ema
+        # Check if close is below 200 EMA for the last 3 consecutive sessions
+        nifty['below_ema'] = nifty['Close'] < nifty['EMA_200']
+        recent_3_sessions = nifty['below_ema'].iloc[-3:]
+        
+        # If all last 3 sessions are below 200 EMA, trigger the kill-switch (Return False)
+        if len(recent_3_sessions) == 3 and recent_3_sessions.all():
+            return False
+            
+        return True
     except Exception as e:
         print(f"Warning: Failed to fetch market regime: {e}")
         return True  # Fail open if yfinance rate limits
@@ -62,7 +74,7 @@ def evaluate_signals(ticker: str, df: pd.DataFrame, is_market_bullish: bool) -> 
         if pct_above_50 > 0.15:
             return None 
 
-    # 2. Reject if Market is Bearish
+    # 2. Reject if Market is Bearish (Kill-Switch Active)
     if not is_market_bullish:
         return None
 
@@ -128,12 +140,12 @@ def evaluate_signals(ticker: str, df: pd.DataFrame, is_market_bullish: bool) -> 
     return None
 
 def run_screener():
-    print("Checking Broader Market Regime...")
+    print("Checking Broader Market Regime (200 EMA + 3-Day Rule)...")
     is_market_bullish = get_market_regime()
-    print(f"Nifty 50 Trend > 50 EMA: {'✅ Bullish' if is_market_bullish else '❌ Bearish (Filtering all longs)'}")
+    print(f"Nifty 50 Regime Status: {'✅ Bullish' if is_market_bullish else '❌ Bearish Kill-Switch Active (Filtering all longs)'}")
 
     if not is_market_bullish:
-        print("Market is bearish. Screener will run but return 0 'Trade-Ready' setups to protect capital.")
+        print("Market kill-switch triggered. Screener will run but return 0 'Trade-Ready' setups to protect capital.")
 
     print("\nRunning technical screener across cached stocks...")
     results = []
