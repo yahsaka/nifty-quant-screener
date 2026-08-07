@@ -13,15 +13,25 @@ HOLD_DAYS = 20
 ATR_MULTIPLIER = 2.0 
 
 def get_market_regime() -> set:
-    """Fetches Nifty 50 and returns a set of dates where the market is in an uptrend."""
-    print("Fetching Nifty 50 benchmark for trend filtering...")
+    """
+    Fetches Nifty 50 and returns a set of dates where the market is NOT in a bearish kill-switch.
+    Enforces the 200-day EMA with a 3-day consecutive close confirmation rule.
+    """
+    print("Fetching Nifty 50 benchmark for 200 EMA + 3-day consecutive kill-switch filtering...")
     nifty = yf.download("^NSEI", period="5y", progress=False)
     
     if isinstance(nifty.columns, pd.MultiIndex):
         nifty.columns = nifty.columns.get_level_values(0)
         
-    nifty['EMA_50'] = nifty['Close'].ewm(span=50, adjust=False).mean()
-    bullish_dates = nifty[nifty['Close'] > nifty['EMA_50']].index.date
+    # Calculate 200-day EMA instead of 50 EMA
+    nifty['EMA_200'] = nifty['Close'].ewm(span=200, adjust=False).mean()
+    
+    # 3-day consecutive close below 200 EMA kill-switch rule
+    nifty['below_ema'] = nifty['Close'] < nifty['EMA_200']
+    nifty['kill_switch'] = nifty['below_ema'].rolling(window=3).sum() == 3
+    
+    # Valid trading dates are those where the kill-switch is NOT active (False)
+    bullish_dates = nifty[~nifty['kill_switch']].index.date
     return set(bullish_dates)
 
 def extract_historical_signals(ticker: str, df: pd.DataFrame, market_bullish_dates: set) -> list:
@@ -55,11 +65,11 @@ def extract_historical_signals(ticker: str, df: pd.DataFrame, market_bullish_dat
         triggered_indices = np.where(condition_mask)[0]
         
         for idx in triggered_indices:
-            # FIX: Ensure we have enough data to enter TOMORROW (idx+1) and hold for HOLD_DAYS
+            # Ensure we have enough data to enter TOMORROW (idx+1) and hold for HOLD_DAYS
             if idx + 1 + HOLD_DAYS >= len(df):
                 continue 
                 
-            # FIX: Enter at the Open of the day AFTER the signal triggered
+            # Enter at the Open of the day AFTER the signal triggered
             entry_price = float(df['Open'].iloc[idx + 1])
             current_atr = float(df['ATR_14'].iloc[idx])
             
@@ -91,7 +101,7 @@ def extract_historical_signals(ticker: str, df: pd.DataFrame, market_bullish_dat
 def run_backtest():
     print("="*70)
     print("Initializing Fixed-Execution ATR Backtest...")
-    print("Parameters: Nifty 50 Filter | Next-Day Open Entry | 2x ATR Stop Loss")
+    print("Parameters: Nifty 50 (200 EMA + 3-Day Kill-Switch) | Next-Day Open Entry | 2x ATR Stop Loss")
     print("="*70)
     
     if not os.path.exists(CACHE_DIR):
@@ -127,7 +137,7 @@ def run_backtest():
     print("YEARLY BACKTEST RESULTS")
     print("="*80)
     
-    # FIX: Grouped by Strategy AND Year
+    # Grouped by Strategy AND Year
     summary = []
     for (strategy, year), group in results_df.groupby(["Strategy", "Year"]):
         summary.append({
