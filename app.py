@@ -80,7 +80,7 @@ div[data-baseweb="select"] > div { background:#111821; border-color:var(--line);
 .glossary-def { color:var(--text); font-size:0.95rem; line-height:1.5; margin-bottom:1.5rem; }
 .glossary-def ul { margin-top: 0.3rem; margin-bottom: 0.3rem; }
 .glossary-def li { margin-bottom: 0.3rem; }
-.legacy-execution-guide { display:none !important; }
+/* .legacy-execution-guide { display:none !important; } */
 </style>
 """,
     unsafe_allow_html=True,
