@@ -1,7 +1,6 @@
 import os
 import re
 import json
-import difflib
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
@@ -17,6 +16,7 @@ st.set_page_config(
 
 CACHE_DIR = "data/ohlcv_cache"
 SCREENER_JSON = "data/latest_screener_results.json"
+EQUITY_CSV = "EQUITY_L.csv"
 
 # Dictionary to map technical triggers to plain-English explanations for the UI
 TRIGGER_HELP = {
@@ -105,114 +105,71 @@ def load_stock_ohlcv(ticker: str):
             return None
 
 
-def find_cached_ticker(company_name, cache_dir):
-    """Token-based matching with a Master Override Dictionary for edge cases."""
-    original_name = str(company_name).strip().upper()
-    
-    # ==========================================
-    # 1. THE MASTER OVERRIDE DICTIONARY
-    # Add any stubborn, mismatched, or weirdly formatted broker names here.
-    # Format: "EXACT BROKER EXPORT NAME": "YAHOO_TICKER.NS"
-    # ==========================================
-    MASTER_MAPPING = {
-        # Tricky ETFs
-        "NIP IND ETF LIQUID BEES": "LIQUIDBEES.NS",
-        "LIQUID BEES": "LIQUIDBEES.NS",
-        "NIPPON INDIA ETF JUNIOR BEES": "JUNIORBEES.NS",
-        "NIPPON INDIA ETF NIFTY BEES": "NIFTYBEES.NS",
-        "NIPPON INDIA ETF BANK BEES": "BANKBEES.NS",
-        "NIPPON INDIA ETF GOLD BEES": "GOLDBEES.NS",
-        "TATA MOTORS LIMITED": "TMPV.NS",
-        
-        # Stubborn Corporate Names (from your errors)
-        "H.G.INFRA ENGINEERING LTD": "HGINFRA.NS",
-        "CEIGALL INDIA LIMITED": "CEIGALL.NS",
-        "JKUMAR INFR.LTD.": "JKIL.NS",
-        "AMARA RAJA ENERGY MOB LTD": "ARE&M.NS",
-        "APOLLO TYRES LTD": "APOLLOTYRE.NS",
-        "COAL INDIA LTD": "COALINDIA.NS",
-        "JINDAL SAW LIMITED": "JINDALSAW.NS",
-        "OIL AND NATURAL GAS CORP.": "ONGC.NS",
-        "SUN TV NETWORK LIMITED": "SUNTV.NS",
-        
-        # Add more as you discover them in your broker files!
-    }
-
-    # Instant return if the exact name is in our master dictionary
-    if original_name in MASTER_MAPPING:
-        return MASTER_MAPPING[original_name]
-
-
-    # ==========================================
-    # 2. Algorithmic Fallback (For everything else)
-    # ==========================================
-    def normalize_name(name):
-        name = str(name).upper().replace("&", "AND").replace(".", "")
-        name = re.sub(r"[^A-Z0-9\s]", " ", name)
-        stopwords = {"LTD", "LIMITED", "INC", "CORP", "CORPORATION", "CO", "COMPANY", "L"}
-        return [w for w in name.split() if w not in stopwords]
-
-    broker_tokens = normalize_name(original_name)
-    if not broker_tokens:
-        return f"{original_name}.NS"
-
-    nse_csv = "data/nifty500_tickers.csv"
-    if os.path.exists(nse_csv):
+@st.cache_data
+def load_equity_master():
+    """Loads the official NSE EQUITY_L.csv file for exact symbol resolution."""
+    if os.path.exists(EQUITY_CSV):
         try:
-            nse_df = pd.read_csv(nse_csv)
-            symbols_set = set(nse_df["Symbol"].dropna().astype(str).str.upper())
-            
-            if original_name in symbols_set:
-                return f"{original_name}.NS"
-                
-            if broker_tokens[0] in symbols_set:
-                return f"{broker_tokens[0]}.NS"
-            
-            if "Company Name" in nse_df.columns:
-                best_match_symbol = None
-                best_score = 0.0
-                
-                for _, row in nse_df.iterrows():
-                    nse_name = str(row["Company Name"])
-                    nse_symbol = str(row["Symbol"]).upper()
-                    nse_tokens = normalize_name(nse_name)
-                    
-                    if not nse_tokens: continue
-                        
-                    set_b = set(broker_tokens)
-                    set_n = set(nse_tokens)
-                    
-                    overlap = len(set_b.intersection(set_n))
-                    score = overlap / min(len(set_b), len(set_n))
-                    
-                    if broker_tokens[0] == nse_tokens[0] and len(broker_tokens[0]) >= 3:
-                        score += 0.30
-                        
-                    if score > best_score:
-                        best_score = score
-                        best_match_symbol = nse_symbol
-
-                if best_score >= 0.75:
-                    return f"{best_match_symbol}.NS"
+            df = pd.read_csv(EQUITY_CSV)
+            # Normalize column names just in case
+            df.columns = [c.strip().upper() for c in df.columns]
+            if "SYMBOL" in df.columns and "NAME OF COMPANY" in df.columns:
+                return df
         except Exception:
             pass
+    return None
 
+
+def find_cached_ticker(company_name, cache_dir):
+    """Maps broker company names to exact NSE symbols using EQUITY_L.csv."""
+    original_name = str(company_name).strip().upper()
+    
+    # 0. Hardcoded Common Aliases for ETFs
+    KNOWN_ALIASES = {
+        "LIQUID BEES": "LIQUIDBEES.NS",
+        "LIQUIDBEES": "LIQUIDBEES.NS",
+        "NIP IND ETF LIQUID BEES": "LIQUIDBEES.NS",
+        "GOLD BEES": "GOLDBEES.NS",
+        "NIFTY BEES": "NIFTYBEES.NS",
+    }
+    if original_name in KNOWN_ALIASES:
+        return KNOWN_ALIASES[original_name]
+
+    equity_df = load_equity_master()
+    if equity_df is not None:
+        # A. Check if the name matches the SYMBOL directly
+        match_sym = equity_df[equity_df["SYMBOL"] == original_name]
+        if not match_sym.empty:
+            return f"{original_name}.NS"
+
+        # B. Check exact match with NAME OF COMPANY
+        match_name = equity_df[equity_df["NAME OF COMPANY"].str.strip().str.upper() == original_name]
+        if not match_name.empty:
+            return f"{match_name.iloc[0]['SYMBOL']}.NS"
+
+        # C. Normalized match (stripping LIMITED, LTD, punctuation)
+        def clean(txt):
+            txt = str(txt).upper().replace("&", "AND").replace(".", "")
+            txt = re.sub(r"[^A-Z0-9\s]", " ", txt)
+            stopwords = {"LTD", "LIMITED", "INC", "CORP", "CORPORATION", "CO", "COMPANY"}
+            return "".join([w for w in txt.split() if w not in stopwords])
+
+        clean_original = clean(original_name)
+        
+        for _, row in equity_df.iterrows():
+            official_name = str(row["NAME OF COMPANY"])
+            if clean(official_name) == clean_original:
+                return f"{row['SYMBOL']}.NS"
+
+    # Fallback to local cache files if present
     if os.path.exists(cache_dir):
         cached_files = [f.replace(".parquet", "") for f in os.listdir(cache_dir) if f.endswith(".parquet")]
         if original_name in cached_files:
             return original_name
-            
-        core_name_no_space = "".join(broker_tokens)
-        for ticker in cached_files:
-            sym = ticker.replace(".NS", "").upper()
-            if sym == core_name_no_space or (len(sym) >= 4 and sym in core_name_no_space):
-                return ticker
 
-    guessed_ticker = broker_tokens[0]
-    if len(guessed_ticker) < 3 and len(broker_tokens) > 1:
-        guessed_ticker = f"{broker_tokens[0]}{broker_tokens[1]}"
-        
-    return f"{guessed_ticker}.NS"
+    # Ultimate fallback guess
+    words = original_name.split()
+    return f"{words[0]}.NS" if words else f"{original_name}.NS"
 
 
 def parse_broker_file(file_obj):
@@ -237,7 +194,6 @@ def parse_broker_file(file_obj):
 
         cols = {str(c).strip().lower(): c for c in df.columns}
 
-        # IMPORTANT: Look for explicit symbols FIRST before defaulting to company names
         t_col = (
             cols.get("symbol")
             or cols.get("instrument")
@@ -712,8 +668,6 @@ with tab2:
                 close_data = pd.Series(dtype=float)
                 ohlcv = load_stock_ohlcv(matched_ticker)
                 if ohlcv is not None and not ohlcv.empty:
-                    # yfinance can return a DataFrame for Close when its columns are
-                    # multi-level. Reduce it to one numeric Series before scalar access.
                     close_data = ohlcv["Close"]
                     if isinstance(close_data, pd.DataFrame):
                         close_data = close_data.iloc[:, 0]
@@ -730,8 +684,6 @@ with tab2:
                         stats["Status"] = "✅ Healthy Trend"
 
                 if close_data.empty:
-                    # Keep the row visible and use the broker price when Yahoo/cache data
-                    # contains no usable Close observations.
                     stats["LTP"] = broker_ltp if broker_ltp > 0 else None
                     stats["Status"] = "Unknown (Invalid Price Data)"
 
@@ -746,9 +698,7 @@ with tab2:
                 "Stock": "Stock Name",
                 "Matched Symbol": st.column_config.TextColumn(
                     "Ticker",
-                    help=(
-                        "The NSE symbol matched in your local Nifty 500 database."
-                    ),
+                    help="The official NSE symbol resolved via EQUITY_L.csv.",
                 ),
                 "Quantity": st.column_config.NumberColumn("Qty"),
                 "Buy Price": st.column_config.NumberColumn(
