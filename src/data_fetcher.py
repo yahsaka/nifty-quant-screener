@@ -16,6 +16,9 @@ def fetch_ticker_data(ticker_symbol: str, start_date: str, end_date: str) -> pd.
     ns_ticker = f"{ticker_symbol}.NS"
     df = yf.download(ns_ticker, start=start_date, end=end_date, progress=False)
     
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.get_level_values(0)
+    
     if df.empty:
         raise ValueError(f"No data returned for {ticker_symbol} from yfinance")
         
@@ -70,9 +73,13 @@ if __name__ == "__main__":
     os.makedirs("data", exist_ok=True)
     print("Fetching official Nifty 500 list from NSE...")
     try:
-        # Fetch directly from NSE's official repository
+        # Fetch directly from NSE's official repository with headers to avoid blocking
         url = "https://archives.nseindia.com/content/indices/ind_nifty500list.csv"
-        nifty_df = pd.read_csv(url)
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        import requests
+        req = requests.get(url, headers=headers)
+        from io import StringIO
+        nifty_df = pd.read_csv(StringIO(req.text))
         
         # Save it to our data folder
         ticker_file = "data/nifty500_tickers.csv"
