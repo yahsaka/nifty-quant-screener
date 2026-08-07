@@ -133,33 +133,50 @@ def find_cached_ticker(company_name, cache_dir):
     """Fuzzy matching to link full broker company names to local YF ticker symbols."""
     if not os.path.exists(cache_dir):
         return company_name
+        
     cached_files = [
         f.replace(".parquet", "")
         for f in os.listdir(cache_dir)
         if f.endswith(".parquet")
     ]
 
+    # Clean the input company name, removing common corporate suffixes
+    clean_name = re.sub(r"[^a-zA-Z0-9\s]", "", str(company_name)).upper()
+    suffixes = [" LIMITED", " LTD", " INC", " CORP", " CORPORATION", " LTD."]
+    for suffix in suffixes:
+        if clean_name.endswith(suffix):
+            clean_name = clean_name[: -len(suffix)].strip()
+    
+    clean_name_no_space = clean_name.replace(" ", "")
+
+    # 1. Exact Match Check
     if company_name in cached_files:
         return company_name
 
-    clean_name = re.sub(r"[^a-zA-Z0-9]", "", company_name).lower()
-
+    # 2. Heuristic Matching
     best_match = None
     for ticker in cached_files:
-        clean_ticker = re.sub(r"[^a-zA-Z0-9]", "", ticker).lower()
-        if clean_ticker.endswith("ns") and len(clean_ticker) > 2:
-            clean_ticker_base = clean_ticker[:-2]
-        else:
-            clean_ticker_base = clean_ticker
+        clean_ticker = ticker.replace(".NS", "").upper()
+        
+        # A. Exact match with the cleaned name
+        if clean_ticker == clean_name_no_space or clean_ticker == clean_name.replace(" ", ""):
+            return ticker
+            
+        # B. Ticker is fully contained within the cleaned company name
+        if clean_ticker in clean_name_no_space and len(clean_ticker) >= 3:
+             if best_match is None or len(clean_ticker) > len(best_match[1]):
+                 best_match = (ticker, clean_ticker)
 
-        if len(clean_ticker_base) < 3:
-            continue
-
-        if clean_ticker_base in clean_name:
-            if best_match is None or len(clean_ticker_base) > len(best_match[1]):
-                best_match = (ticker, clean_ticker_base)
-
-    return best_match[0] if best_match else company_name
+    # 3. Fallback: If we can't map it to a cached Nifty 500 symbol, 
+    # we should NOT return the full company name to yfinance.
+    # We will try to guess the NSE symbol by taking the first word of the company name.
+    if best_match:
+         return best_match[0]
+    else:
+         # Guess ticker: Take the first word, remove non-alphanumeric, append .NS
+         guessed_ticker = company_name.split(" ")[0]
+         guessed_ticker = re.sub(r"[^a-zA-Z0-9]", "", guessed_ticker).upper()
+         return f"{guessed_ticker}.NS"
 
 
 def parse_broker_file(file_obj):
