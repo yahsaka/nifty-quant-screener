@@ -114,9 +114,17 @@ def load_stock_ohlcv(ticker: str):
             df = yf.download(yf_ticker, period="1y", progress=False)
             if df.empty:
                 df = yf.download(ticker, period="1y", progress=False)
-            if isinstance(df.columns, pd.MultiIndex):
-                df.columns = df.columns.get_level_values(0)
-            return df if not df.empty else None
+            
+            if not df.empty:
+                if isinstance(df.columns, pd.MultiIndex):
+                    df.columns = df.columns.get_level_values(0)
+                
+                # Save it temporarily so it's cached for the rest of this session
+                os.makedirs(CACHE_DIR, exist_ok=True)
+                df.to_parquet(file_path)
+                
+                return df
+            return None
         except Exception:
             return None
 
