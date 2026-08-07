@@ -630,6 +630,7 @@ with tab2:
             "P&L %": None,
         }
 
+        close_data = pd.Series(dtype=float)
         ohlcv = load_stock_ohlcv(matched_ticker)
         if ohlcv is not None and not ohlcv.empty:
           # yfinance can return a DataFrame for Close when its columns are
@@ -638,11 +639,9 @@ with tab2:
           if isinstance(close_data, pd.DataFrame):
             close_data = close_data.iloc[:, 0]
           close_data = pd.to_numeric(close_data, errors="coerce").dropna()
-          latest_close = float(close_data.iloc[-1])
-          ohlcv["EMA_200"] = close_data.ewm(span=200, adjust=False).mean()
-          latest_ema_200 = float(
-              close_data.ewm(span=200, adjust=False).mean().iloc[-1]
-          )
+          latest_close = float(close_data.iloc[-1]) if not close_data.empty else float("nan")
+          ema_200 = close_data.ewm(span=200, adjust=False).mean()
+          latest_ema_200 = float(ema_200.iloc[-1]) if not ema_200.empty else float("nan")
 
           stats["LTP"] = latest_close
 
@@ -650,6 +649,12 @@ with tab2:
             stats["Status"] = "⚠️ Below 200 EMA"
           else:
             stats["Status"] = "✅ Healthy Trend"
+
+        if close_data.empty:
+          # Keep the row visible and use the broker price when Yahoo/cache data
+          # contains no usable Close observations.
+          stats["LTP"] = broker_ltp if broker_ltp > 0 else None
+          stats["Status"] = "Unknown (Invalid Price Data)"
 
         if stats["LTP"] is not None and avg_price > 0:
           stats["P&L %"] = ((stats["LTP"] - avg_price) / avg_price) * 100
