@@ -9,8 +9,8 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-CACHE_DIR = "../data/ohlcv_cache"
-OUTPUT_FILE = "../data/latest_screener_results.json"
+CACHE_DIR = "data/ohlcv_cache"
+OUTPUT_FILE = "data/latest_screener_results.json"
 
 def get_market_regime() -> bool:
     """Checks if Nifty 50 is above its 50 EMA today for the market regime filter."""
