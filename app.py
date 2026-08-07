@@ -122,6 +122,7 @@ def find_cached_ticker(company_name, cache_dir):
         "NIPPON INDIA ETF NIFTY BEES": "NIFTYBEES.NS",
         "NIPPON INDIA ETF BANK BEES": "BANKBEES.NS",
         "NIPPON INDIA ETF GOLD BEES": "GOLDBEES.NS",
+        "TATA MOTORS LIMITED": "TMPV.NS"
         
         # Stubborn Corporate Names (from your errors)
         "H.G.INFRA ENGINEERING LTD": "HGINFRA.NS",
