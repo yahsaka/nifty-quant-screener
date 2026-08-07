@@ -4,7 +4,7 @@ import yfinance as yf
 from tenacity import retry, stop_after_attempt, wait_exponential
 from datetime import datetime, timedelta
 
-CACHE_DIR = "../data/ohlcv_cache"
+CACHE_DIR = "data/ohlcv_cache"
 
 # Retry up to 3 times, waiting exponentially between 2 and 10 seconds if it fails
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
@@ -67,6 +67,7 @@ def update_ticker_cache(ticker_symbol: str):
             print(f"[{ticker_symbol}] Failed to create initial cache: {e}")
 
 if __name__ == "__main__":
+    os.makedirs("data", exist_ok=True)
     print("Fetching official Nifty 500 list from NSE...")
     try:
         # Fetch directly from NSE's official repository
@@ -74,7 +75,7 @@ if __name__ == "__main__":
         nifty_df = pd.read_csv(url)
         
         # Save it to our data folder
-        ticker_file = "../data/nifty500_tickers.csv"
+        ticker_file = "data/nifty500_tickers.csv"
         nifty_df.to_csv(ticker_file, index=False)
         
         # Extract just the symbols
@@ -85,7 +86,7 @@ if __name__ == "__main__":
         print(f"Failed to fetch Nifty 500 list: {e}")
         print("Falling back to local CSV if it exists...")
         try:
-            tickers = pd.read_csv("../data/nifty500_tickers.csv")['Symbol'].tolist()
+            tickers = pd.read_csv("data/nifty500_tickers.csv")['Symbol'].tolist()
         except:
             print("No local CSV found. Exiting.")
             exit()
