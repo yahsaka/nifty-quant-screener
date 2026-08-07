@@ -1,0 +1,11 @@
+yfinance
+nsepython
+pandas
+pandas-ta
+tenacity
+requests
+pyarrow
+fastparquet
+plotly
+streamlit
+tabulate

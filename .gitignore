@@ -1,0 +1,17 @@
+# Python / Virtual Environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Personal Broker Data & Statements
+*.xlsx
+*.csv
+!requirements.txt
+
+# Local Data Caches (Let GitHub Actions fetch fresh data)
+data/ohlcv_cache/
+
+# Streamlit config
+.streamlit/
