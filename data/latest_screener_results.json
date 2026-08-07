@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-08-07T18:09:21.909383",
+  "updated_at": "2026-08-07T15:04:19.095392",
   "market_regime": "Bullish",
   "total_scanned": 500,
-  "total_signals": 118,
+  "total_signals": 113,
   "signals": [
     {
       "ticker": "MAZDOCK",
@@ -25,8 +25,8 @@
       "ticker": "AIIL",
       "last_date": "2026-08-06",
       "close": 596.2,
-      "rsi_14": 67.75,
-      "pct_above_50": 12.77,
+      "rsi_14": 68.1,
+      "pct_above_50": 12.9,
       "volume_ratio": 5.47,
       "score": 4,
       "status": "Watchlist",
@@ -38,12 +38,12 @@
       ]
     },
     {
-      "ticker": "ASTERDM",
+      "ticker": "TATATECH",
       "last_date": "2026-08-06",
-      "close": 844.45,
-      "rsi_14": 65.53,
-      "pct_above_50": 6.86,
-      "volume_ratio": 3.9,
+      "close": 801.55,
+      "rsi_14": 66.71,
+      "pct_above_50": 10.99,
+      "volume_ratio": 6.34,
       "score": 4,
       "status": "Watchlist",
       "triggers": [
@@ -54,12 +54,12 @@
       ]
     },
     {
-      "ticker": "AUBANK",
+      "ticker": "POONAWALLA",
       "last_date": "2026-08-06",
-      "close": 1087.6,
-      "rsi_14": 62.97,
-      "pct_above_50": 5.94,
-      "volume_ratio": 2.75,
+      "close": 490.85,
+      "rsi_14": 62.95,
+      "pct_above_50": 8.75,
+      "volume_ratio": 2.05,
       "score": 4,
       "status": "Watchlist",
       "triggers": [
@@ -70,59 +70,27 @@
       ]
     },
     {
-      "ticker": "BERGEPAINT",
+      "ticker": "SBFC",
       "last_date": "2026-08-06",
-      "close": 537.6,
-      "rsi_14": 64.11,
-      "pct_above_50": 6.29,
-      "volume_ratio": 3.0,
+      "close": 95.29,
+      "rsi_14": 62.77,
+      "pct_above_50": 3.38,
+      "volume_ratio": 1.11,
       "score": 4,
       "status": "Watchlist",
       "triggers": [
         "ABOVE_EMA_200",
+        "EMA_200_BREAKOUT",
         "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X",
         "RSI_60_TO_70"
       ]
     },
     {
-      "ticker": "ENGINERSIN",
+      "ticker": "SCI",
       "last_date": "2026-08-06",
-      "close": 242.39,
-      "rsi_14": 60.71,
-      "pct_above_50": 4.06,
-      "volume_ratio": 2.4,
-      "score": 4,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "INDGN",
-      "last_date": "2026-08-06",
-      "close": 550.2,
-      "rsi_14": 65.15,
-      "pct_above_50": 7.26,
-      "volume_ratio": 6.3,
-      "score": 4,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "MOTHERSON",
-      "last_date": "2026-08-06",
-      "close": 155.0,
-      "rsi_14": 64.51,
-      "pct_above_50": 7.6,
+      "close": 308.6,
+      "rsi_14": 64.71,
+      "pct_above_50": 5.72,
       "volume_ratio": 2.38,
       "score": 4,
       "status": "Watchlist",
@@ -150,12 +118,12 @@
       ]
     },
     {
-      "ticker": "POONAWALLA",
+      "ticker": "INDGN",
       "last_date": "2026-08-06",
-      "close": 490.85,
-      "rsi_14": 62.95,
-      "pct_above_50": 8.75,
-      "volume_ratio": 2.05,
+      "close": 550.2,
+      "rsi_14": 65.15,
+      "pct_above_50": 7.26,
+      "volume_ratio": 6.3,
       "score": 4,
       "status": "Watchlist",
       "triggers": [
@@ -166,44 +134,12 @@
       ]
     },
     {
-      "ticker": "RITES",
+      "ticker": "ASTERDM",
       "last_date": "2026-08-06",
-      "close": 231.38,
-      "rsi_14": 61.96,
-      "pct_above_50": 6.84,
-      "volume_ratio": 2.49,
-      "score": 4,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "SBFC",
-      "last_date": "2026-08-06",
-      "close": 95.29,
-      "rsi_14": 63.7,
-      "pct_above_50": 3.43,
-      "volume_ratio": 1.12,
-      "score": 4,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "EMA_200_BREAKOUT",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "SCI",
-      "last_date": "2026-08-06",
-      "close": 308.6,
-      "rsi_14": 64.71,
-      "pct_above_50": 5.72,
-      "volume_ratio": 2.38,
+      "close": 844.45,
+      "rsi_14": 65.53,
+      "pct_above_50": 6.86,
+      "volume_ratio": 3.9,
       "score": 4,
       "status": "Watchlist",
       "triggers": [
@@ -230,12 +166,44 @@
       ]
     },
     {
-      "ticker": "TATATECH",
+      "ticker": "BERGEPAINT",
       "last_date": "2026-08-06",
-      "close": 801.55,
-      "rsi_14": 66.71,
-      "pct_above_50": 10.99,
-      "volume_ratio": 6.34,
+      "close": 537.6,
+      "rsi_14": 63.99,
+      "pct_above_50": 6.41,
+      "volume_ratio": 2.97,
+      "score": 4,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "RITES",
+      "last_date": "2026-08-06",
+      "close": 231.38,
+      "rsi_14": 62.52,
+      "pct_above_50": 6.82,
+      "volume_ratio": 2.27,
+      "score": 4,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "AUBANK",
+      "last_date": "2026-08-06",
+      "close": 1087.6,
+      "rsi_14": 62.97,
+      "pct_above_50": 5.94,
+      "volume_ratio": 2.75,
       "score": 4,
       "status": "Watchlist",
       "triggers": [
@@ -262,552 +230,28 @@
       ]
     },
     {
+      "ticker": "MOTHERSON",
+      "last_date": "2026-08-06",
+      "close": 155.0,
+      "rsi_14": 64.51,
+      "pct_above_50": 7.6,
+      "volume_ratio": 2.38,
+      "score": 4,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
       "ticker": "360ONE",
       "last_date": "2026-08-06",
       "close": 1186.0,
-      "rsi_14": 63.0,
-      "pct_above_50": 6.36,
+      "rsi_14": 63.19,
+      "pct_above_50": 6.46,
       "volume_ratio": 0.69,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "3MINDIA",
-      "last_date": "2026-08-06",
-      "close": 36000.0,
-      "rsi_14": 61.15,
-      "pct_above_50": 5.4,
-      "volume_ratio": 1.14,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "AARTIIND",
-      "last_date": "2026-08-06",
-      "close": 501.2,
-      "rsi_14": 58.76,
-      "pct_above_50": 4.66,
-      "volume_ratio": 1.82,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "MACD_BULLISH_CROSS"
-      ]
-    },
-    {
-      "ticker": "ABB",
-      "last_date": "2026-08-06",
-      "close": 7645.0,
-      "rsi_14": 66.63,
-      "pct_above_50": 7.72,
-      "volume_ratio": 0.32,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "ABBOTINDIA",
-      "last_date": "2026-08-06",
-      "close": 27855.0,
-      "rsi_14": 63.47,
-      "pct_above_50": 4.01,
-      "volume_ratio": 0.58,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "ABCAPITAL",
-      "last_date": "2026-08-06",
-      "close": 421.5,
-      "rsi_14": 61.5,
-      "pct_above_50": 8.1,
-      "volume_ratio": 0.55,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "ABFRL",
-      "last_date": "2026-08-06",
-      "close": 63.26,
-      "rsi_14": 63.5,
-      "pct_above_50": 5.06,
-      "volume_ratio": 2.41,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "ACE",
-      "last_date": "2026-08-06",
-      "close": 1113.7,
-      "rsi_14": 63.77,
-      "pct_above_50": 11.33,
-      "volume_ratio": 0.31,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "AFFLE",
-      "last_date": "2026-08-06",
-      "close": 1688.7,
-      "rsi_14": 65.54,
-      "pct_above_50": 10.75,
-      "volume_ratio": 0.39,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "AIAENG",
-      "last_date": "2026-08-06",
-      "close": 4795.4,
-      "rsi_14": 58.89,
-      "pct_above_50": 4.8,
-      "volume_ratio": 1.31,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "MACD_BULLISH_CROSS"
-      ]
-    },
-    {
-      "ticker": "ANANTRAJ",
-      "last_date": "2026-08-06",
-      "close": 617.4,
-      "rsi_14": 60.6,
-      "pct_above_50": 8.35,
-      "volume_ratio": 0.41,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "ANTHEM",
-      "last_date": "2026-08-06",
-      "close": 825.65,
-      "rsi_14": 65.54,
-      "pct_above_50": 6.34,
-      "volume_ratio": 0.9,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "APARINDS",
-      "last_date": "2026-08-06",
-      "close": 16126.0,
-      "rsi_14": 67.98,
-      "pct_above_50": 13.97,
-      "volume_ratio": 1.39,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "APLAPOLLO",
-      "last_date": "2026-08-06",
-      "close": 1945.0,
-      "rsi_14": 63.46,
-      "pct_above_50": 4.78,
-      "volume_ratio": 1.33,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "APOLLOTYRE",
-      "last_date": "2026-08-06",
-      "close": 449.7,
-      "rsi_14": 67.43,
-      "pct_above_50": 5.65,
-      "volume_ratio": 1.27,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "ARE&M",
-      "last_date": "2026-08-06",
-      "close": 927.45,
-      "rsi_14": 61.79,
-      "pct_above_50": 6.29,
-      "volume_ratio": 0.52,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "ASAHIINDIA",
-      "last_date": "2026-08-06",
-      "close": 913.95,
-      "rsi_14": 57.72,
-      "pct_above_50": 3.45,
-      "volume_ratio": 3.23,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X"
-      ]
-    },
-    {
-      "ticker": "ATUL",
-      "last_date": "2026-08-06",
-      "close": 6796.5,
-      "rsi_14": 62.78,
-      "pct_above_50": 4.13,
-      "volume_ratio": 1.04,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "BAJAJ-AUTO",
-      "last_date": "2026-08-06",
-      "close": 11620.0,
-      "rsi_14": 66.43,
-      "pct_above_50": 9.56,
-      "volume_ratio": 0.48,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "BAJAJHLDNG",
-      "last_date": "2026-08-06",
-      "close": 11387.0,
-      "rsi_14": 65.47,
-      "pct_above_50": 6.7,
-      "volume_ratio": 0.86,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "BANKINDIA",
-      "last_date": "2026-08-06",
-      "close": 142.66,
-      "rsi_14": 52.72,
-      "pct_above_50": 0.61,
-      "volume_ratio": 0.67,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "MACD_BULLISH_CROSS"
-      ]
-    },
-    {
-      "ticker": "BDL",
-      "last_date": "2026-08-06",
-      "close": 1299.0,
-      "rsi_14": 54.04,
-      "pct_above_50": 0.58,
-      "volume_ratio": 3.32,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X",
-        "MACD_BULLISH_CROSS"
-      ]
-    },
-    {
-      "ticker": "BELRISE",
-      "last_date": "2026-08-06",
-      "close": 244.61,
-      "rsi_14": 61.52,
-      "pct_above_50": 6.18,
-      "volume_ratio": 0.98,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "BHARATFORG",
-      "last_date": "2026-08-06",
-      "close": 2210.0,
-      "rsi_14": 61.59,
-      "pct_above_50": 5.48,
-      "volume_ratio": 1.17,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "BOSCHLTD",
-      "last_date": "2026-08-06",
-      "close": 42000.0,
-      "rsi_14": 58.48,
-      "pct_above_50": 4.91,
-      "volume_ratio": 1.18,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "MACD_BULLISH_CROSS"
-      ]
-    },
-    {
-      "ticker": "CANBK",
-      "last_date": "2026-08-06",
-      "close": 131.7,
-      "rsi_14": 61.19,
-      "pct_above_50": 2.97,
-      "volume_ratio": 0.99,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "CASTROLIND",
-      "last_date": "2026-08-06",
-      "close": 194.17,
-      "rsi_14": 83.4,
-      "pct_above_50": 4.95,
-      "volume_ratio": 4.13,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X"
-      ]
-    },
-    {
-      "ticker": "CEATLTD",
-      "last_date": "2026-08-06",
-      "close": 3755.4,
-      "rsi_14": 64.86,
-      "pct_above_50": 7.48,
-      "volume_ratio": 0.5,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "CHALET",
-      "last_date": "2026-08-06",
-      "close": 863.1,
-      "rsi_14": 60.74,
-      "pct_above_50": 5.5,
-      "volume_ratio": 1.57,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "CHOICEIN",
-      "last_date": "2026-08-06",
-      "close": 833.2,
-      "rsi_14": 67.03,
-      "pct_above_50": 8.12,
-      "volume_ratio": 0.93,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "CHOLAFIN",
-      "last_date": "2026-08-06",
-      "close": 1940.0,
-      "rsi_14": 68.1,
-      "pct_above_50": 11.22,
-      "volume_ratio": 1.67,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "CIPLA",
-      "last_date": "2026-08-06",
-      "close": 1477.0,
-      "rsi_14": 60.98,
-      "pct_above_50": 3.94,
-      "volume_ratio": 1.05,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "COCHINSHIP",
-      "last_date": "2026-08-06",
-      "close": 1490.0,
-      "rsi_14": 61.72,
-      "pct_above_50": 2.94,
-      "volume_ratio": 3.51,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "COHANCE",
-      "last_date": "2026-08-06",
-      "close": 438.9,
-      "rsi_14": 53.47,
-      "pct_above_50": 1.66,
-      "volume_ratio": 7.3,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X",
-        "MACD_BULLISH_CROSS"
-      ]
-    },
-    {
-      "ticker": "CRISIL",
-      "last_date": "2026-08-06",
-      "close": 4550.6,
-      "rsi_14": 65.15,
-      "pct_above_50": 7.9,
-      "volume_ratio": 1.05,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "DEEPAKNTR",
-      "last_date": "2026-08-06",
-      "close": 1750.4,
-      "rsi_14": 62.38,
-      "pct_above_50": 5.34,
-      "volume_ratio": 1.17,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "DIXON",
-      "last_date": "2026-08-06",
-      "close": 14200.0,
-      "rsi_14": 60.39,
-      "pct_above_50": 8.67,
-      "volume_ratio": 0.36,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -832,12 +276,12 @@
       ]
     },
     {
-      "ticker": "ENDURANCE",
+      "ticker": "RAINBOW",
       "last_date": "2026-08-06",
-      "close": 2877.7,
-      "rsi_14": 65.22,
-      "pct_above_50": 7.33,
-      "volume_ratio": 0.94,
+      "close": 1573.2,
+      "rsi_14": 68.59,
+      "pct_above_50": 8.87,
+      "volume_ratio": 1.07,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -847,42 +291,42 @@
       ]
     },
     {
-      "ticker": "ETERNAL",
+      "ticker": "BOSCHLTD",
       "last_date": "2026-08-06",
-      "close": 316.25,
-      "rsi_14": 68.37,
-      "pct_above_50": 12.32,
-      "volume_ratio": 0.85,
+      "close": 42000.0,
+      "rsi_14": 58.62,
+      "pct_above_50": 5.01,
+      "volume_ratio": 1.16,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "MACD_BULLISH_CROSS"
+      ]
+    },
+    {
+      "ticker": "HONASA",
+      "last_date": "2026-08-06",
+      "close": 465.65,
+      "rsi_14": 61.46,
+      "pct_above_50": 7.14,
+      "volume_ratio": 0.75,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
         "ABOVE_EMA_200",
         "ABOVE_EMA_50",
         "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "FINCABLES",
-      "last_date": "2026-08-06",
-      "close": 1034.75,
-      "rsi_14": 52.47,
-      "pct_above_50": 0.37,
-      "volume_ratio": 2.31,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X"
       ]
     },
     {
       "ticker": "FLUOROCHEM",
       "last_date": "2026-08-06",
       "close": 4548.0,
-      "rsi_14": 62.78,
-      "pct_above_50": 10.75,
-      "volume_ratio": 0.38,
+      "rsi_14": 63.11,
+      "pct_above_50": 11.06,
+      "volume_ratio": 0.37,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -892,42 +336,12 @@
       ]
     },
     {
-      "ticker": "FORCEMOT",
+      "ticker": "PIDILITIND",
       "last_date": "2026-08-06",
-      "close": 18690.0,
-      "rsi_14": 58.17,
-      "pct_above_50": 1.51,
-      "volume_ratio": 0.77,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "EMA_200_BREAKOUT",
-        "ABOVE_EMA_50"
-      ]
-    },
-    {
-      "ticker": "FSL",
-      "last_date": "2026-08-06",
-      "close": 293.95,
-      "rsi_14": 56.05,
-      "pct_above_50": 10.24,
-      "volume_ratio": 3.9,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X"
-      ]
-    },
-    {
-      "ticker": "GLAND",
-      "last_date": "2026-08-06",
-      "close": 2608.3,
-      "rsi_14": 63.97,
-      "pct_above_50": 9.89,
-      "volume_ratio": 1.14,
+      "close": 1686.0,
+      "rsi_14": 69.9,
+      "pct_above_50": 8.01,
+      "volume_ratio": 1.44,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -937,27 +351,147 @@
       ]
     },
     {
-      "ticker": "GMDCLTD",
+      "ticker": "KIMS",
       "last_date": "2026-08-06",
-      "close": 596.75,
-      "rsi_14": 56.75,
-      "pct_above_50": 0.43,
-      "volume_ratio": 3.84,
+      "close": 808.6,
+      "rsi_14": 53.78,
+      "pct_above_50": 2.67,
+      "volume_ratio": 0.88,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "MACD_BULLISH_CROSS"
+      ]
+    },
+    {
+      "ticker": "HINDCOPPER",
+      "last_date": "2026-08-06",
+      "close": 545.95,
+      "rsi_14": 71.23,
+      "pct_above_50": 8.07,
+      "volume_ratio": 3.93,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
         "ABOVE_EMA_200",
         "ABOVE_EMA_50",
         "VOLUME_SPIKE_2X"
+      ]
+    },
+    {
+      "ticker": "ARE&M",
+      "last_date": "2026-08-06",
+      "close": 927.45,
+      "rsi_14": 61.79,
+      "pct_above_50": 6.5,
+      "volume_ratio": 0.51,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "ABBOTINDIA",
+      "last_date": "2026-08-06",
+      "close": 27855.0,
+      "rsi_14": 63.49,
+      "pct_above_50": 4.18,
+      "volume_ratio": 0.54,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "HCLTECH",
+      "last_date": "2026-08-06",
+      "close": 1335.0,
+      "rsi_14": 65.93,
+      "pct_above_50": 8.83,
+      "volume_ratio": 0.91,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
       ]
     },
     {
       "ticker": "GRAPHITE",
       "last_date": "2026-08-06",
       "close": 722.05,
-      "rsi_14": 69.64,
-      "pct_above_50": 10.17,
+      "rsi_14": 69.18,
+      "pct_above_50": 10.22,
       "volume_ratio": 0.82,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "BAJAJ-AUTO",
+      "last_date": "2026-08-06",
+      "close": 11620.0,
+      "rsi_14": 66.8,
+      "pct_above_50": 9.96,
+      "volume_ratio": 0.48,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "ABFRL",
+      "last_date": "2026-08-06",
+      "close": 63.26,
+      "rsi_14": 63.16,
+      "pct_above_50": 5.08,
+      "volume_ratio": 2.72,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "CHOICEIN",
+      "last_date": "2026-08-06",
+      "close": 833.2,
+      "rsi_14": 66.9,
+      "pct_above_50": 8.43,
+      "volume_ratio": 0.62,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "ABCAPITAL",
+      "last_date": "2026-08-06",
+      "close": 421.5,
+      "rsi_14": 61.23,
+      "pct_above_50": 8.29,
+      "volume_ratio": 0.61,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -982,6 +516,141 @@
       ]
     },
     {
+      "ticker": "DIXON",
+      "last_date": "2026-08-06",
+      "close": 14200.0,
+      "rsi_14": 60.39,
+      "pct_above_50": 8.67,
+      "volume_ratio": 0.36,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "APOLLOTYRE",
+      "last_date": "2026-08-06",
+      "close": 449.7,
+      "rsi_14": 66.68,
+      "pct_above_50": 5.7,
+      "volume_ratio": 1.34,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "INDIANB",
+      "last_date": "2026-08-06",
+      "close": 877.9,
+      "rsi_14": 64.02,
+      "pct_above_50": 5.01,
+      "volume_ratio": 0.95,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "CIPLA",
+      "last_date": "2026-08-06",
+      "close": 1477.0,
+      "rsi_14": 60.98,
+      "pct_above_50": 3.94,
+      "volume_ratio": 1.05,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "NESTLEIND",
+      "last_date": "2026-08-06",
+      "close": 1535.0,
+      "rsi_14": 66.76,
+      "pct_above_50": 6.27,
+      "volume_ratio": 0.65,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "TRAVELFOOD",
+      "last_date": "2026-08-06",
+      "close": 1337.2,
+      "rsi_14": 56.67,
+      "pct_above_50": 3.47,
+      "volume_ratio": 3.52,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X"
+      ]
+    },
+    {
+      "ticker": "UNIONBANK",
+      "last_date": "2026-08-06",
+      "close": 182.5,
+      "rsi_14": 67.57,
+      "pct_above_50": 8.03,
+      "volume_ratio": 1.09,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "JSWDULUX",
+      "last_date": "2026-08-06",
+      "close": 3077.0,
+      "rsi_14": 54.99,
+      "pct_above_50": 1.74,
+      "volume_ratio": 1.11,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "EMA_200_BREAKOUT",
+        "ABOVE_EMA_50"
+      ]
+    },
+    {
+      "ticker": "SAIL",
+      "last_date": "2026-08-06",
+      "close": 176.74,
+      "rsi_14": 61.17,
+      "pct_above_50": 2.77,
+      "volume_ratio": 1.17,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
       "ticker": "HAL",
       "last_date": "2026-08-06",
       "close": 4920.0,
@@ -997,12 +666,12 @@
       ]
     },
     {
-      "ticker": "HCLTECH",
+      "ticker": "RBLBANK",
       "last_date": "2026-08-06",
-      "close": 1335.0,
-      "rsi_14": 65.93,
-      "pct_above_50": 8.83,
-      "volume_ratio": 0.91,
+      "close": 392.0,
+      "rsi_14": 66.49,
+      "pct_above_50": 7.93,
+      "volume_ratio": 0.44,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1012,12 +681,12 @@
       ]
     },
     {
-      "ticker": "HINDALCO",
+      "ticker": "CHOLAFIN",
       "last_date": "2026-08-06",
-      "close": 1027.0,
-      "rsi_14": 64.46,
-      "pct_above_50": 4.02,
-      "volume_ratio": 1.32,
+      "close": 1940.0,
+      "rsi_14": 68.1,
+      "pct_above_50": 11.22,
+      "volume_ratio": 1.67,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1027,12 +696,12 @@
       ]
     },
     {
-      "ticker": "HINDCOPPER",
+      "ticker": "CASTROLIND",
       "last_date": "2026-08-06",
-      "close": 545.95,
-      "rsi_14": 71.23,
-      "pct_above_50": 8.07,
-      "volume_ratio": 3.93,
+      "close": 194.17,
+      "rsi_14": 82.62,
+      "pct_above_50": 4.97,
+      "volume_ratio": 4.13,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1042,12 +711,12 @@
       ]
     },
     {
-      "ticker": "HONASA",
+      "ticker": "ANANTRAJ",
       "last_date": "2026-08-06",
-      "close": 465.65,
-      "rsi_14": 62.09,
-      "pct_above_50": 6.98,
-      "volume_ratio": 0.79,
+      "close": 617.4,
+      "rsi_14": 60.6,
+      "pct_above_50": 8.35,
+      "volume_ratio": 0.41,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1057,12 +726,102 @@
       ]
     },
     {
-      "ticker": "ICICIBANK",
+      "ticker": "ABB",
       "last_date": "2026-08-06",
-      "close": 1457.5,
-      "rsi_14": 65.83,
-      "pct_above_50": 5.49,
-      "volume_ratio": 1.21,
+      "close": 7645.0,
+      "rsi_14": 66.07,
+      "pct_above_50": 7.81,
+      "volume_ratio": 0.33,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "MEDANTA",
+      "last_date": "2026-08-06",
+      "close": 1444.3,
+      "rsi_14": 66.37,
+      "pct_above_50": 9.31,
+      "volume_ratio": 1.62,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "APLAPOLLO",
+      "last_date": "2026-08-06",
+      "close": 1945.0,
+      "rsi_14": 63.46,
+      "pct_above_50": 4.78,
+      "volume_ratio": 1.33,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "NAUKRI",
+      "last_date": "2026-08-06",
+      "close": 1240.0,
+      "rsi_14": 66.03,
+      "pct_above_50": 10.55,
+      "volume_ratio": 0.64,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "PNBHOUSING",
+      "last_date": "2026-08-06",
+      "close": 1150.0,
+      "rsi_14": 65.94,
+      "pct_above_50": 9.51,
+      "volume_ratio": 1.87,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "ASAHIINDIA",
+      "last_date": "2026-08-06",
+      "close": 913.95,
+      "rsi_14": 57.25,
+      "pct_above_50": 3.44,
+      "volume_ratio": 3.27,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X"
+      ]
+    },
+    {
+      "ticker": "NETWEB",
+      "last_date": "2026-08-06",
+      "close": 4813.0,
+      "rsi_14": 62.13,
+      "pct_above_50": 9.46,
+      "volume_ratio": 0.96,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1087,12 +846,27 @@
       ]
     },
     {
-      "ticker": "IIFL",
+      "ticker": "SHRIRAMFIN",
       "last_date": "2026-08-06",
-      "close": 609.35,
-      "rsi_14": 67.55,
-      "pct_above_50": 11.55,
-      "volume_ratio": 0.46,
+      "close": 1141.0,
+      "rsi_14": 70.1,
+      "pct_above_50": 11.22,
+      "volume_ratio": 2.09,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X"
+      ]
+    },
+    {
+      "ticker": "ULTRACEMCO",
+      "last_date": "2026-08-06",
+      "close": 12075.0,
+      "rsi_14": 65.06,
+      "pct_above_50": 4.88,
+      "volume_ratio": 0.71,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1102,27 +876,12 @@
       ]
     },
     {
-      "ticker": "INDIACEM",
+      "ticker": "APARINDS",
       "last_date": "2026-08-06",
-      "close": 393.05,
-      "rsi_14": 50.16,
-      "pct_above_50": 0.34,
-      "volume_ratio": 0.32,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "EMA_200_BREAKOUT",
-        "ABOVE_EMA_50"
-      ]
-    },
-    {
-      "ticker": "INDIANB",
-      "last_date": "2026-08-06",
-      "close": 877.9,
-      "rsi_14": 64.69,
-      "pct_above_50": 5.0,
-      "volume_ratio": 0.96,
+      "close": 16126.0,
+      "rsi_14": 67.98,
+      "pct_above_50": 13.97,
+      "volume_ratio": 1.39,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1132,12 +891,27 @@
       ]
     },
     {
-      "ticker": "JINDALSAW",
+      "ticker": "PERSISTENT",
       "last_date": "2026-08-06",
-      "close": 265.25,
-      "rsi_14": 55.82,
-      "pct_above_50": 4.55,
-      "volume_ratio": 0.96,
+      "close": 5459.5,
+      "rsi_14": 62.05,
+      "pct_above_50": 7.04,
+      "volume_ratio": 0.37,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "AARTIIND",
+      "last_date": "2026-08-06",
+      "close": 501.2,
+      "rsi_14": 58.76,
+      "pct_above_50": 4.66,
+      "volume_ratio": 1.82,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1147,132 +921,87 @@
       ]
     },
     {
-      "ticker": "JIOFIN",
+      "ticker": "MANAPPURAM",
       "last_date": "2026-08-06",
-      "close": 263.1,
-      "rsi_14": 67.8,
-      "pct_above_50": 8.06,
-      "volume_ratio": 0.68,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "JSWDULUX",
-      "last_date": "2026-08-06",
-      "close": 3077.0,
-      "rsi_14": 55.44,
-      "pct_above_50": 1.83,
-      "volume_ratio": 1.29,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "EMA_200_BREAKOUT",
-        "ABOVE_EMA_50"
-      ]
-    },
-    {
-      "ticker": "JSWSTEEL",
-      "last_date": "2026-08-06",
-      "close": 1307.9,
-      "rsi_14": 62.37,
-      "pct_above_50": 3.96,
-      "volume_ratio": 1.27,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "JUBLINGREA",
-      "last_date": "2026-08-06",
-      "close": 757.0,
-      "rsi_14": 60.84,
-      "pct_above_50": 7.66,
-      "volume_ratio": 0.63,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "JYOTICNC",
-      "last_date": "2026-08-06",
-      "close": 865.05,
-      "rsi_14": 69.28,
-      "pct_above_50": 11.43,
-      "volume_ratio": 0.59,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "KARURVYSYA",
-      "last_date": "2026-08-06",
-      "close": 337.5,
-      "rsi_14": 61.94,
-      "pct_above_50": 8.15,
-      "volume_ratio": 0.23,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "KIMS",
-      "last_date": "2026-08-06",
-      "close": 808.6,
-      "rsi_14": 53.68,
-      "pct_above_50": 2.58,
-      "volume_ratio": 0.89,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "MACD_BULLISH_CROSS"
-      ]
-    },
-    {
-      "ticker": "LLOYDSME",
-      "last_date": "2026-08-06",
-      "close": 2059.0,
-      "rsi_14": 65.79,
-      "pct_above_50": 10.97,
-      "volume_ratio": 0.57,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "LT",
-      "last_date": "2026-08-06",
-      "close": 4061.8,
-      "rsi_14": 62.49,
-      "pct_above_50": 2.68,
+      "close": 364.0,
+      "rsi_14": 63.71,
+      "pct_above_50": 8.91,
       "volume_ratio": 0.73,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "PTCIL",
+      "last_date": "2026-08-06",
+      "close": 18221.0,
+      "rsi_14": 59.61,
+      "pct_above_50": 3.25,
+      "volume_ratio": 2.03,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X"
+      ]
+    },
+    {
+      "ticker": "BANKINDIA",
+      "last_date": "2026-08-06",
+      "close": 142.66,
+      "rsi_14": 52.72,
+      "pct_above_50": 0.61,
+      "volume_ratio": 0.67,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "MACD_BULLISH_CROSS"
+      ]
+    },
+    {
+      "ticker": "SBIN",
+      "last_date": "2026-08-06",
+      "close": 1085.0,
+      "rsi_14": 68.26,
+      "pct_above_50": 5.49,
+      "volume_ratio": 1.38,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "MINDACORP",
+      "last_date": "2026-08-06",
+      "close": 716.9,
+      "rsi_14": 61.54,
+      "pct_above_50": 7.83,
+      "volume_ratio": 0.62,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "GLAND",
+      "last_date": "2026-08-06",
+      "close": 2608.3,
+      "rsi_14": 64.21,
+      "pct_above_50": 10.15,
+      "volume_ratio": 1.13,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1297,12 +1026,12 @@
       ]
     },
     {
-      "ticker": "M&MFIN",
+      "ticker": "BHARATFORG",
       "last_date": "2026-08-06",
-      "close": 388.8,
-      "rsi_14": 64.26,
-      "pct_above_50": 14.38,
-      "volume_ratio": 0.25,
+      "close": 2210.0,
+      "rsi_14": 61.59,
+      "pct_above_50": 5.48,
+      "volume_ratio": 1.17,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1312,12 +1041,12 @@
       ]
     },
     {
-      "ticker": "MANAPPURAM",
+      "ticker": "AFFLE",
       "last_date": "2026-08-06",
-      "close": 364.0,
-      "rsi_14": 62.15,
-      "pct_above_50": 8.45,
-      "volume_ratio": 0.7,
+      "close": 1688.7,
+      "rsi_14": 65.54,
+      "pct_above_50": 10.75,
+      "volume_ratio": 0.39,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1327,12 +1056,27 @@
       ]
     },
     {
-      "ticker": "MEDANTA",
+      "ticker": "TRENT",
       "last_date": "2026-08-06",
-      "close": 1444.3,
-      "rsi_14": 65.39,
-      "pct_above_50": 9.02,
-      "volume_ratio": 1.54,
+      "close": 3107.1,
+      "rsi_14": 61.62,
+      "pct_above_50": 4.8,
+      "volume_ratio": 4.0,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "JSWSTEEL",
+      "last_date": "2026-08-06",
+      "close": 1307.9,
+      "rsi_14": 62.37,
+      "pct_above_50": 3.96,
+      "volume_ratio": 1.27,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1342,12 +1086,12 @@
       ]
     },
     {
-      "ticker": "MINDACORP",
+      "ticker": "ZFCVINDIA",
       "last_date": "2026-08-06",
-      "close": 716.9,
-      "rsi_14": 60.88,
-      "pct_above_50": 7.58,
-      "volume_ratio": 0.63,
+      "close": 2580.3,
+      "rsi_14": 64.61,
+      "pct_above_50": 6.01,
+      "volume_ratio": 0.37,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1357,12 +1101,42 @@
       ]
     },
     {
-      "ticker": "NATIONALUM",
+      "ticker": "COCHINSHIP",
       "last_date": "2026-08-06",
-      "close": 381.0,
-      "rsi_14": 65.04,
-      "pct_above_50": 4.77,
-      "volume_ratio": 0.93,
+      "close": 1490.0,
+      "rsi_14": 61.72,
+      "pct_above_50": 2.94,
+      "volume_ratio": 3.51,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "SAILIFE",
+      "last_date": "2026-08-06",
+      "close": 1413.5,
+      "rsi_14": 75.21,
+      "pct_above_50": 13.92,
+      "volume_ratio": 2.95,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X"
+      ]
+    },
+    {
+      "ticker": "ETERNAL",
+      "last_date": "2026-08-06",
+      "close": 316.25,
+      "rsi_14": 68.37,
+      "pct_above_50": 12.32,
+      "volume_ratio": 0.85,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1372,12 +1146,12 @@
       ]
     },
     {
-      "ticker": "NAUKRI",
+      "ticker": "SONATSOFTW",
       "last_date": "2026-08-06",
-      "close": 1240.0,
-      "rsi_14": 64.09,
-      "pct_above_50": 10.13,
-      "volume_ratio": 0.69,
+      "close": 331.95,
+      "rsi_14": 61.72,
+      "pct_above_50": 13.46,
+      "volume_ratio": 0.31,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1387,27 +1161,12 @@
       ]
     },
     {
-      "ticker": "NAVA",
+      "ticker": "JYOTICNC",
       "last_date": "2026-08-06",
-      "close": 588.7,
-      "rsi_14": 55.23,
-      "pct_above_50": 0.48,
-      "volume_ratio": 1.66,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "EMA_200_BREAKOUT",
-        "ABOVE_EMA_50"
-      ]
-    },
-    {
-      "ticker": "NESTLEIND",
-      "last_date": "2026-08-06",
-      "close": 1535.0,
-      "rsi_14": 66.76,
-      "pct_above_50": 6.27,
-      "volume_ratio": 0.65,
+      "close": 865.05,
+      "rsi_14": 69.51,
+      "pct_above_50": 11.66,
+      "volume_ratio": 0.6,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1417,12 +1176,87 @@
       ]
     },
     {
-      "ticker": "NETWEB",
+      "ticker": "CANBK",
       "last_date": "2026-08-06",
-      "close": 4813.0,
-      "rsi_14": 62.13,
-      "pct_above_50": 9.46,
-      "volume_ratio": 0.96,
+      "close": 131.7,
+      "rsi_14": 61.19,
+      "pct_above_50": 2.97,
+      "volume_ratio": 0.99,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "TBOTEK",
+      "last_date": "2026-08-06",
+      "close": 1623.1,
+      "rsi_14": 64.86,
+      "pct_above_50": 12.29,
+      "volume_ratio": 0.32,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "CRISIL",
+      "last_date": "2026-08-06",
+      "close": 4550.6,
+      "rsi_14": 66.06,
+      "pct_above_50": 8.06,
+      "volume_ratio": 1.03,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "LLOYDSME",
+      "last_date": "2026-08-06",
+      "close": 2059.0,
+      "rsi_14": 65.79,
+      "pct_above_50": 10.97,
+      "volume_ratio": 0.57,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "ACE",
+      "last_date": "2026-08-06",
+      "close": 1113.7,
+      "rsi_14": 63.67,
+      "pct_above_50": 11.68,
+      "volume_ratio": 0.31,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "3MINDIA",
+      "last_date": "2026-08-06",
+      "close": 36000.0,
+      "rsi_14": 61.67,
+      "pct_above_50": 5.48,
+      "volume_ratio": 1.14,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1447,12 +1281,12 @@
       ]
     },
     {
-      "ticker": "PERSISTENT",
+      "ticker": "DEEPAKNTR",
       "last_date": "2026-08-06",
-      "close": 5459.5,
-      "rsi_14": 61.64,
-      "pct_above_50": 6.68,
-      "volume_ratio": 0.34,
+      "close": 1750.4,
+      "rsi_14": 61.76,
+      "pct_above_50": 5.37,
+      "volume_ratio": 1.16,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1462,71 +1296,41 @@
       ]
     },
     {
-      "ticker": "PIDILITIND",
+      "ticker": "AIAENG",
       "last_date": "2026-08-06",
-      "close": 1686.0,
-      "rsi_14": 68.16,
-      "pct_above_50": 7.85,
-      "volume_ratio": 1.41,
+      "close": 4795.4,
+      "rsi_14": 58.28,
+      "pct_above_50": 4.83,
+      "volume_ratio": 1.35,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "MACD_BULLISH_CROSS"
+      ]
+    },
+    {
+      "ticker": "HINDALCO",
+      "last_date": "2026-08-06",
+      "close": 1027.0,
+      "rsi_14": 63.96,
+      "pct_above_50": 3.99,
+      "volume_ratio": 1.31,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
         "ABOVE_EMA_200",
         "ABOVE_EMA_50",
         "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "PNB",
-      "last_date": "2026-08-06",
-      "close": 114.3,
-      "rsi_14": 67.45,
-      "pct_above_50": 5.32,
-      "volume_ratio": 0.63,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "PNBHOUSING",
-      "last_date": "2026-08-06",
-      "close": 1150.0,
-      "rsi_14": 66.71,
-      "pct_above_50": 9.46,
-      "volume_ratio": 1.84,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "PTCIL",
-      "last_date": "2026-08-06",
-      "close": 18221.0,
-      "rsi_14": 59.78,
-      "pct_above_50": 3.21,
-      "volume_ratio": 2.02,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X"
       ]
     },
     {
       "ticker": "PVRINOX",
       "last_date": "2026-08-06",
       "close": 1150.4,
-      "rsi_14": 67.46,
-      "pct_above_50": 10.66,
+      "rsi_14": 67.8,
+      "pct_above_50": 11.08,
       "volume_ratio": 0.3,
       "score": 3,
       "status": "Watchlist",
@@ -1537,12 +1341,12 @@
       ]
     },
     {
-      "ticker": "RAINBOW",
+      "ticker": "ANTHEM",
       "last_date": "2026-08-06",
-      "close": 1573.2,
-      "rsi_14": 68.66,
-      "pct_above_50": 8.61,
-      "volume_ratio": 1.08,
+      "close": 825.65,
+      "rsi_14": 65.45,
+      "pct_above_50": 6.53,
+      "volume_ratio": 0.93,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1552,207 +1356,12 @@
       ]
     },
     {
-      "ticker": "RBLBANK",
+      "ticker": "ATUL",
       "last_date": "2026-08-06",
-      "close": 392.0,
-      "rsi_14": 66.11,
-      "pct_above_50": 7.77,
-      "volume_ratio": 0.43,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "SAIL",
-      "last_date": "2026-08-06",
-      "close": 176.74,
-      "rsi_14": 61.17,
-      "pct_above_50": 2.77,
-      "volume_ratio": 1.17,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "SAILIFE",
-      "last_date": "2026-08-06",
-      "close": 1413.5,
-      "rsi_14": 75.81,
-      "pct_above_50": 13.62,
-      "volume_ratio": 2.92,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X"
-      ]
-    },
-    {
-      "ticker": "SBIN",
-      "last_date": "2026-08-06",
-      "close": 1085.0,
-      "rsi_14": 68.26,
-      "pct_above_50": 5.49,
-      "volume_ratio": 1.38,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "SHRIRAMFIN",
-      "last_date": "2026-08-06",
-      "close": 1141.0,
-      "rsi_14": 70.1,
-      "pct_above_50": 11.22,
-      "volume_ratio": 2.09,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X"
-      ]
-    },
-    {
-      "ticker": "SONATSOFTW",
-      "last_date": "2026-08-06",
-      "close": 331.95,
-      "rsi_14": 61.59,
-      "pct_above_50": 12.96,
-      "volume_ratio": 0.31,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "SWIGGY",
-      "last_date": "2026-08-06",
-      "close": 288.65,
-      "rsi_14": 60.23,
-      "pct_above_50": 7.46,
-      "volume_ratio": 2.0,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "TBOTEK",
-      "last_date": "2026-08-06",
-      "close": 1623.1,
-      "rsi_14": 65.01,
-      "pct_above_50": 11.98,
-      "volume_ratio": 0.31,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "TECHM",
-      "last_date": "2026-08-06",
-      "close": 1632.2,
-      "rsi_14": 66.09,
-      "pct_above_50": 7.98,
-      "volume_ratio": 1.21,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "TIMKEN",
-      "last_date": "2026-08-06",
-      "close": 3343.1,
-      "rsi_14": 60.56,
-      "pct_above_50": 0.89,
-      "volume_ratio": 1.13,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "TRAVELFOOD",
-      "last_date": "2026-08-06",
-      "close": 1337.2,
-      "rsi_14": 56.89,
-      "pct_above_50": 3.41,
-      "volume_ratio": 3.51,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X"
-      ]
-    },
-    {
-      "ticker": "TRENT",
-      "last_date": "2026-08-06",
-      "close": 3107.1,
-      "rsi_14": 62.02,
-      "pct_above_50": 4.72,
-      "volume_ratio": 4.18,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_50",
-        "VOLUME_SPIKE_2X",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "ULTRACEMCO",
-      "last_date": "2026-08-06",
-      "close": 12075.0,
-      "rsi_14": 65.12,
-      "pct_above_50": 4.73,
-      "volume_ratio": 0.68,
-      "score": 3,
-      "status": "Watchlist",
-      "triggers": [
-        "ABOVE_EMA_200",
-        "ABOVE_EMA_50",
-        "RSI_60_TO_70"
-      ]
-    },
-    {
-      "ticker": "UNIONBANK",
-      "last_date": "2026-08-06",
-      "close": 182.5,
-      "rsi_14": 68.28,
-      "pct_above_50": 7.95,
-      "volume_ratio": 1.12,
+      "close": 6796.5,
+      "rsi_14": 62.78,
+      "pct_above_50": 4.13,
+      "volume_ratio": 1.04,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
@@ -1777,12 +1386,327 @@
       ]
     },
     {
-      "ticker": "ZFCVINDIA",
+      "ticker": "NATIONALUM",
       "last_date": "2026-08-06",
-      "close": 2580.3,
-      "rsi_14": 64.61,
-      "pct_above_50": 6.01,
-      "volume_ratio": 0.37,
+      "close": 381.0,
+      "rsi_14": 65.04,
+      "pct_above_50": 4.77,
+      "volume_ratio": 0.93,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "IIFL",
+      "last_date": "2026-08-06",
+      "close": 609.35,
+      "rsi_14": 67.55,
+      "pct_above_50": 11.55,
+      "volume_ratio": 0.46,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "PNB",
+      "last_date": "2026-08-06",
+      "close": 114.3,
+      "rsi_14": 67.45,
+      "pct_above_50": 5.32,
+      "volume_ratio": 0.63,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "FSL",
+      "last_date": "2026-08-06",
+      "close": 293.95,
+      "rsi_14": 56.05,
+      "pct_above_50": 10.24,
+      "volume_ratio": 3.9,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X"
+      ]
+    },
+    {
+      "ticker": "ENDURANCE",
+      "last_date": "2026-08-06",
+      "close": 2877.7,
+      "rsi_14": 65.22,
+      "pct_above_50": 7.33,
+      "volume_ratio": 0.94,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "ENGINERSIN",
+      "last_date": "2026-08-06",
+      "close": 242.39,
+      "rsi_14": 59.77,
+      "pct_above_50": 3.9,
+      "volume_ratio": 2.36,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X"
+      ]
+    },
+    {
+      "ticker": "NAVA",
+      "last_date": "2026-08-06",
+      "close": 588.7,
+      "rsi_14": 54.36,
+      "pct_above_50": 0.24,
+      "volume_ratio": 1.68,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "EMA_200_BREAKOUT",
+        "ABOVE_EMA_50"
+      ]
+    },
+    {
+      "ticker": "BAJAJHLDNG",
+      "last_date": "2026-08-06",
+      "close": 11387.0,
+      "rsi_14": 65.73,
+      "pct_above_50": 6.98,
+      "volume_ratio": 0.89,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "ICICIBANK",
+      "last_date": "2026-08-06",
+      "close": 1457.5,
+      "rsi_14": 65.83,
+      "pct_above_50": 5.49,
+      "volume_ratio": 1.21,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "FORCEMOT",
+      "last_date": "2026-08-06",
+      "close": 18690.0,
+      "rsi_14": 58.17,
+      "pct_above_50": 1.51,
+      "volume_ratio": 0.77,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "EMA_200_BREAKOUT",
+        "ABOVE_EMA_50"
+      ]
+    },
+    {
+      "ticker": "TECHM",
+      "last_date": "2026-08-06",
+      "close": 1632.2,
+      "rsi_14": 66.09,
+      "pct_above_50": 7.98,
+      "volume_ratio": 1.21,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "JIOFIN",
+      "last_date": "2026-08-06",
+      "close": 263.1,
+      "rsi_14": 67.8,
+      "pct_above_50": 8.06,
+      "volume_ratio": 0.68,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "BELRISE",
+      "last_date": "2026-08-06",
+      "close": 244.61,
+      "rsi_14": 61.52,
+      "pct_above_50": 6.18,
+      "volume_ratio": 0.98,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "LT",
+      "last_date": "2026-08-06",
+      "close": 4061.8,
+      "rsi_14": 62.49,
+      "pct_above_50": 2.68,
+      "volume_ratio": 0.73,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "GMDCLTD",
+      "last_date": "2026-08-06",
+      "close": 596.75,
+      "rsi_14": 56.75,
+      "pct_above_50": 0.43,
+      "volume_ratio": 3.84,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X"
+      ]
+    },
+    {
+      "ticker": "FINCABLES",
+      "last_date": "2026-08-06",
+      "close": 1034.75,
+      "rsi_14": 51.83,
+      "pct_above_50": 0.21,
+      "volume_ratio": 2.35,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X"
+      ]
+    },
+    {
+      "ticker": "INDIACEM",
+      "last_date": "2026-08-06",
+      "close": 393.05,
+      "rsi_14": 50.36,
+      "pct_above_50": 0.4,
+      "volume_ratio": 0.32,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "EMA_200_BREAKOUT",
+        "ABOVE_EMA_50"
+      ]
+    },
+    {
+      "ticker": "BDL",
+      "last_date": "2026-08-06",
+      "close": 1299.0,
+      "rsi_14": 54.04,
+      "pct_above_50": 0.58,
+      "volume_ratio": 3.32,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X",
+        "MACD_BULLISH_CROSS"
+      ]
+    },
+    {
+      "ticker": "CEATLTD",
+      "last_date": "2026-08-06",
+      "close": 3755.4,
+      "rsi_14": 63.98,
+      "pct_above_50": 7.45,
+      "volume_ratio": 0.5,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "SWIGGY",
+      "last_date": "2026-08-06",
+      "close": 288.65,
+      "rsi_14": 60.23,
+      "pct_above_50": 7.46,
+      "volume_ratio": 2.0,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_50",
+        "VOLUME_SPIKE_2X",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "JUBLINGREA",
+      "last_date": "2026-08-06",
+      "close": 757.0,
+      "rsi_14": 60.64,
+      "pct_above_50": 7.88,
+      "volume_ratio": 0.6,
+      "score": 3,
+      "status": "Watchlist",
+      "triggers": [
+        "ABOVE_EMA_200",
+        "ABOVE_EMA_50",
+        "RSI_60_TO_70"
+      ]
+    },
+    {
+      "ticker": "KARURVYSYA",
+      "last_date": "2026-08-06",
+      "close": 337.5,
+      "rsi_14": 61.94,
+      "pct_above_50": 8.15,
+      "volume_ratio": 0.23,
       "score": 3,
       "status": "Watchlist",
       "triggers": [
