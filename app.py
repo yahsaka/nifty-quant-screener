@@ -80,7 +80,7 @@ div[data-baseweb="select"] > div { background:#111821; border-color:var(--line);
 .glossary-def { color:var(--text); font-size:0.95rem; line-height:1.5; margin-bottom:1.5rem; }
 .glossary-def ul { margin-top: 0.3rem; margin-bottom: 0.3rem; }
 .glossary-def li { margin-bottom: 0.3rem; }
-.legacy-execution-guide { display:none; }
+.legacy-execution-guide { display:none !important; }
 </style>
 """,
     unsafe_allow_html=True,
@@ -632,6 +632,11 @@ with tab2:
 
         ohlcv = load_stock_ohlcv(matched_ticker)
         if ohlcv is not None and not ohlcv.empty:
+          # yfinance can return a DataFrame for Close when its columns are
+          # multi-level. Reduce it to one numeric Series before scalar access.
+          if isinstance(ohlcv["Close"], pd.DataFrame):
+            ohlcv = ohlcv.copy()
+            ohlcv["Close"] = ohlcv["Close"].iloc[:, 0]
           latest_close = float(ohlcv["Close"].iloc[-1])
           ohlcv["EMA_200"] = ohlcv["Close"].ewm(span=200, adjust=False).mean()
           latest_ema_200 = float(ohlcv["EMA_200"].iloc[-1])
