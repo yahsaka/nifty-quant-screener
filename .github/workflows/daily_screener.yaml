@@ -2,40 +2,80 @@ name: Daily Nifty Quant Screener
 
 on:
   schedule:
-    - cron: '30 10 * * 1-5' # Runs Monday to Friday at 10:30 UTC (4:00 PM IST)
-  workflow_dispatch: # Allows manual triggering from the GitHub Actions tab
+    - cron: "30 10 * * 1-5" # 4:00 PM IST, after the regular NSE close
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+# A manual run must not race a scheduled run and overwrite its results/cache.
+concurrency:
+  group: daily-nifty-quant-screener
+  cancel-in-progress: false
+
 jobs:
   run-screener:
     runs-on: ubuntu-latest
+    # First run may need longer to build the initial 500-stock cache.
+    timeout-minutes: 330
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12' # Change from 3.10 to 3.12
-          cache: 'pip'
+          python-version: "3.11"
+          cache: pip
 
-      - name: Install Dependencies
+      - name: Restore OHLCV cache
+        uses: actions/cache@v4
+        with:
+          path: data/ohlcv_cache
+          key: ${{ runner.os }}-nifty-ohlcv-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-nifty-ohlcv-
+
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
 
-      - name: Run Quantitative Screener
+      - name: Refresh market data
+        run: python src/data_fetcher.py
+
+      - name: Verify complete cache
         run: |
-          python src/data_fetcher.py
-          python src/screener.py
+          expected=$(python -c "import pandas as pd; print(len(pd.read_csv('data/nifty500_tickers.csv')['Symbol'].dropna().unique()))")
+          cached=$(find data/ohlcv_cache -maxdepth 1 -name '*.parquet' -type f | wc -l)
+          echo "Expected $expected ticker files; found $cached cached files."
+          test "$cached" -ge "$expected"
 
-      - name: Commit and Push Results
+      - name: Run quantitative screener
+        run: python src/screener.py
+
+      - name: Verify screener output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          output = Path("data/latest_screener_results.json")
+          if not output.exists():
+              raise SystemExit("Screener did not produce a results file.")
+          result = json.loads(output.read_text(encoding="utf-8"))
+          if result.get("market_regime") not in {"Bullish", "Bearish", "Unknown"}:
+              raise SystemExit("Unexpected market regime in screener output.")
+          if result.get("total_scanned") != result.get("universe_size"):
+              raise SystemExit("Screener did not evaluate the complete cached universe.")
+          if result.get("failed_count", 0):
+              raise SystemExit("Screener reported failed ticker evaluations.")
+          PY
+
+      - name: Commit and push results
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git status
-          git add data/latest_screener_results.json
+          git add data/latest_screener_results.json data/nifty500_tickers.csv
           git diff --staged --quiet || git commit -m "Automated daily scan update: $(date +'%Y-%m-%d')"
           git push
