@@ -3,7 +3,7 @@ import json
 import tempfile
 import pandas as pd
 import yfinance as yf
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from indicators import calculate_indicators
 import warnings
 
@@ -160,8 +160,12 @@ def run_screener():
     # Sort results so Trade-Ready and highest scores are at the top
     results = sorted(results, key=lambda x: x['score'], reverse=True)
 
+    # Force IST timezone (UTC + 5:30)
+    IST = timezone(timedelta(hours=5, minutes=30))
+    current_ist_time = datetime.now(IST)
+
     output_data = {
-        "updated_at": datetime.now().isoformat(),
+        "updated_at": current_ist_time.isoformat(),
         "market_regime": "Bullish" if is_market_bullish else "Bearish",
         "total_scanned": len(cache_files),
         "total_signals": len(results),
