@@ -28,6 +28,7 @@ jobs:
 
       - name: Run Quantitative Screener
         run: |
+          python src/data_fetcher.py
           python src/screener.py
 
       - name: Commit and Push Results
