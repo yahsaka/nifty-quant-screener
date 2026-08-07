@@ -423,7 +423,7 @@ with tab1:
           filtered[display_cols],
           column_config=col_config,
           hide_index=True,
-          use_container_width=True,
+          width="stretch",
           height=min(500, 74 + 35 * max(len(filtered), 1)),
       )
 
@@ -526,7 +526,7 @@ with tab1:
             yaxis=dict(title="Price (INR)", gridcolor="#1b2530"),
         )
         st.plotly_chart(
-            fig, use_container_width=True, config={"displayModeBar": False}
+            fig, width="stretch", config={"displayModeBar": False}
         )
 
         st.markdown(
@@ -634,12 +634,15 @@ with tab2:
         if ohlcv is not None and not ohlcv.empty:
           # yfinance can return a DataFrame for Close when its columns are
           # multi-level. Reduce it to one numeric Series before scalar access.
-          if isinstance(ohlcv["Close"], pd.DataFrame):
-            ohlcv = ohlcv.copy()
-            ohlcv["Close"] = ohlcv["Close"].iloc[:, 0]
-          latest_close = float(ohlcv["Close"].iloc[-1])
-          ohlcv["EMA_200"] = ohlcv["Close"].ewm(span=200, adjust=False).mean()
-          latest_ema_200 = float(ohlcv["EMA_200"].iloc[-1])
+          close_data = ohlcv["Close"]
+          if isinstance(close_data, pd.DataFrame):
+            close_data = close_data.iloc[:, 0]
+          close_data = pd.to_numeric(close_data, errors="coerce").dropna()
+          latest_close = float(close_data.iloc[-1])
+          ohlcv["EMA_200"] = close_data.ewm(span=200, adjust=False).mean()
+          latest_ema_200 = float(
+              close_data.ewm(span=200, adjust=False).mean().iloc[-1]
+          )
 
           stats["LTP"] = latest_close
 
@@ -680,7 +683,7 @@ with tab2:
             " long-term downtrend."
         )
         st.dataframe(
-            breakdowns, column_config=col_conf, hide_index=True, use_container_width=True
+            breakdowns, column_config=col_conf, hide_index=True, width="stretch"
         )
       else:
         st.success(
@@ -716,7 +719,7 @@ with tab2:
                   "triggers_str": "Triggers Met",
               },
               hide_index=True,
-              use_container_width=True,
+              width="stretch",
           )
         else:
           st.info(
@@ -728,7 +731,7 @@ with tab2:
 
       st.subheader("All Parsed Holdings")
       st.dataframe(
-          res_df, column_config=col_conf, hide_index=True, use_container_width=True
+          res_df, column_config=col_conf, hide_index=True, width="stretch"
       )
 
 # ==========================================
