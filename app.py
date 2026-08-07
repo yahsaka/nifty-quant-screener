@@ -32,8 +32,8 @@ TRIGGER_HELP = {
         " average)."
     ),
     "VOLUME_SPIKE_2X": (
-        "Institutional Interest: Today's trading volume is more than double the"
-        " normal 20-day average."
+        "Unusual activity: today's volume is more than double its 20-day"
+        " average. Volume alone does not identify who is buying or selling."
     ),
     "RSI_60_TO_70": (
         "Goldilocks Momentum: RSI is between 60-70 (Strong momentum, but not"
@@ -80,6 +80,7 @@ div[data-baseweb="select"] > div { background:#111821; border-color:var(--line);
 .glossary-def { color:var(--text); font-size:0.95rem; line-height:1.5; margin-bottom:1.5rem; }
 .glossary-def ul { margin-top: 0.3rem; margin-bottom: 0.3rem; }
 .glossary-def li { margin-bottom: 0.3rem; }
+.legacy-execution-guide { display:none; }
 </style>
 """,
     unsafe_allow_html=True,
@@ -291,7 +292,7 @@ with tab1:
         metric_card(
             "Market Regime",
             market_regime.upper(),
-            "Nifty 50 vs 50-day EMA",
+            "Nifty 50 vs 200-day EMA · 3-session confirmation",
             regime_state,
             "Shows if the overall market is healthy.",
         ),
@@ -331,8 +332,10 @@ with tab1:
     if market_regime == "Bearish":
       st.warning(
           "Market regime is bearish — long setups are filtered while Nifty 50"
-          " remains below its 50-day EMA."
+          " has closed below its 200-day EMA for three consecutive sessions."
       )
+    elif market_regime == "Unknown":
+      st.warning("Market regime data is unavailable — long setup classification is suspended.")
 
     st.markdown(
         '<div class="section-kicker">Opportunity scanner</div>',
@@ -472,6 +475,13 @@ with tab1:
         days = {"3M": 90, "6M": 180, "1Y": 365}.get(period, 180)
         chart_df = ohlcv_df.tail(days)
 
+        latest_close = chart_df["Close"].iloc[-1]
+        latest_low = chart_df["Low"].iloc[-1]
+        latest_ema50 = chart_df["EMA_50"].iloc[-1]
+        latest_ema200 = chart_df["EMA_200"].iloc[-1]
+        swing_low = chart_df["Low"].tail(10).min()
+        target_10 = latest_close * 1.10
+
         fig = go.Figure()
         fig.add_trace(
             go.Candlestick(
@@ -519,33 +529,32 @@ with tab1:
             fig, use_container_width=True, config={"displayModeBar": False}
         )
 
-        latest_close = chart_df["Close"].iloc[-1]
-        latest_low = chart_df["Low"].iloc[-1]
-        latest_ema50 = chart_df["EMA_50"].iloc[-1]
-        latest_ema200 = chart_df["EMA_200"].iloc[-1]
-        swing_low = chart_df["Low"].tail(10).min()
-        target_10 = latest_close * 1.10
-
         st.markdown(
             '<div class="section-kicker" style="margin-top:'
             ' 1.5rem;">Trade Execution Guide</div>',
             unsafe_allow_html=True,
         )
+        st.info(
+            "Tested model: enter at the next session's open after a score ≥ 3; "
+            "use a 2 × ATR stop (with gap-through stops filled at the open); "
+            "otherwise exit at the close of the 20th holding session. "
+            "Backtest assumptions include configurable slippage and transaction costs."
+        )
         st.markdown(
             f"""
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+                <div class="legacy-execution-guide" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
                     <div class="card" style="min-height: auto;">
-                        <div class="card-label" style="color:var(--green);">1. Entry Timing (Breakout Retest)</div>
+                        <div class="card-label" style="color:var(--green);">1. Tested Entry (Next-Session Open)</div>
                         <div class="card-note" style="margin-top:0.8rem; line-height:1.5;">
-                            Wait 3-5 days for a pullback on lower volume before buying.
+                            The tested model enters at the next trading session's open after a qualifying score of 3 or higher.
                             <br><br><b>Suggested Entry Zone:</b><br>
                             <span style="font-size:1.1rem; color:var(--text); font-weight:600;">₹{latest_ema200:,.2f}</span> <span style="font-size:0.8rem;">(200 EMA)</span> to <span style="font-size:1.1rem; color:var(--text); font-weight:600;">₹{latest_close * 0.97:,.2f}</span> <span style="font-size:0.8rem;">(-3% dip)</span>
                         </div>
                     </div>
                     <div class="card" style="min-height: auto;">
-                        <div class="card-label" style="color:var(--red);">2. Structural Stop-Loss</div>
+                        <div class="card-label" style="color:var(--red);">2. Tested ATR Stop-Loss</div>
                         <div class="card-note" style="margin-top:0.8rem; line-height:1.5;">
-                            Place your stop-loss manually below a structural support level:
+                            The tested model uses a stop 2 × ATR below the executed entry and treats gaps through the stop conservatively.
                             <br><br>
                             • <b>Below 50 EMA:</b> <span style="color:var(--text); font-weight:600;">₹{latest_ema50 * 0.99:,.2f}</span><br>
                             • <b>Recent Swing Low:</b> <span style="color:var(--text); font-weight:600;">₹{swing_low * 0.99:,.2f}</span><br>
@@ -553,10 +562,10 @@ with tab1:
                         </div>
                     </div>
                     <div class="card" style="min-height: auto;">
-                        <div class="card-label" style="color:var(--amber);">3. Holding Period & Profit</div>
+                        <div class="card-label" style="color:var(--amber);">3. Tested Holding Period</div>
                         <div class="card-note" style="margin-top:0.8rem; line-height:1.5;">
-                            <b>Time Stop:</b> If it doesn't move in 7-10 days, sell it.
-                            <br><br><b>Scaling Out (+10% Target):</b><br>
+                            Positions that do not hit the stop are exited at the close of the 20th holding session.
+                            <br><br><b>Costs:</b><br>
                             Sell half your position at <span style="font-size:1.1rem; color:var(--green); font-weight:600;">₹{target_10:,.2f}</span>, then move stop-loss to entry price.
                         </div>
                     </div>
@@ -581,8 +590,8 @@ with tab2:
 
   st.info(
       "🔒 **Privacy First:** Upload your Groww (or standard broker) Holdings"
-      " CSV or Excel file here. It is processed 100% in your browser memory and"
-      " never saved."
+      " CSV or Excel file here. It is processed for this session and is not"
+      " intentionally saved by this application."
   )
 
   uploaded_file = st.file_uploader(
@@ -744,7 +753,7 @@ with tab3:
         <div class="glossary-def">When a stock's price moves above a major resistance level (like the 200 EMA) with increased volume. This often indicates the start of a new upward trend.</div>
 
         <div class="glossary-term">Volume</div>
-        <div class="glossary-def">The number of shares traded in a day. We look for a <b>2x Volume Spike</b> (double the normal 20-day average). This is a massive footprint left by institutional buyers.</div>
+        <div class="glossary-def">The number of shares traded in a day. We flag a <b>2x Volume Spike</b> (double the normal 20-day average) as unusually high participation; volume alone does not identify the participants or their direction.</div>
         """,
         unsafe_allow_html=True,
     )
@@ -756,9 +765,9 @@ with tab3:
         <div class="glossary-term">RSI (Relative Strength Index)</div>
         <div class="glossary-def">A momentum oscillator that ranges from 0 to 100.
         <ul>
-            <li><b>Above 70:</b> Considered "Overbought" (due for a drop).</li>
-            <li><b>Below 30:</b> Considered "Oversold" (due for a bounce).</li>
-            <li><b>60 to 70:</b> The "Goldilocks Zone" where a stock has strong upward momentum but hasn't become dangerously over-extended yet.</li>
+            <li><b>Above 70:</b> Traditionally considered overbought; this is not a prediction of an immediate drop.</li>
+            <li><b>Below 30:</b> Traditionally considered oversold; this is not a prediction of an immediate bounce.</li>
+            <li><b>60 to 70:</b> The range used by this screener as one confirmation of recent upward momentum.</li>
         </ul>
         </div>
 
@@ -766,7 +775,7 @@ with tab3:
         <div class="glossary-def">A trend-following momentum indicator. A <b>Bullish Cross</b> happens when the MACD line crosses above the signal line, acting as a buy signal.</div>
         
         <div class="glossary-term">Overextended (% Above 50 EMA)</div>
-        <div class="glossary-def">If a stock is trading more than 15% above its 50 EMA, the rubber band is stretched too tight, and a sharp correction is highly likely. The screener filters these out automatically.</div>
+        <div class="glossary-def">The screener excludes stocks more than 15% above their 50 EMA to avoid chasing extended prices. This is a risk filter, not a forecast of a correction.</div>
         """,
         unsafe_allow_html=True,
     )
@@ -776,28 +785,27 @@ with tab3:
   st.subheader("🛡️ Risk Management & Trading Rules")
   st.markdown(
       """
-    <div class="glossary-term">1. Entry Timing (The "Breakout Retest")</div>
+    <div class="glossary-term">1. Tested Entry</div>
     <div class="glossary-def">
-    Our backtesting data proved that buying the exact top of a massive volume breakout often leads to immediate losses (whipsaws). Why? Because the stock is temporarily exhausted and will likely pull back. 
-    <br><b>Action:</b> Do not buy immediately. Add the "Trade-Ready" stock to your watchlist and wait 3-5 days for it to "retest" the breakout level on lower volume before entering.
+    The historical model enters at the next trading session's open after a qualifying six-point screener score of at least 3. It does not test pullback or breakout-retest entries.
     </div>
     
-    <div class="glossary-term">2. Setting a Stop-Loss (Where to exit a losing trade)</div>
+    <div class="glossary-term">2. Tested Stop-Loss</div>
     <div class="glossary-def">
-    Never use a rigid percentage (like -5%) or a pure volatility calculation to set a stop-loss in the Indian mid-cap market; normal intraday noise will randomly shake you out. Instead, place your stop-loss manually below a <b>structural support level</b> based on the chart:
+    The model places a stop at <b>2 × ATR</b> below the executed entry price. If the next session opens below that stop, the simulation exits at the weaker opening price to account for a gap:
     <ul>
-        <li>Just below the 50-day EMA line.</li>
-        <li>Just below the recent "swing low" (the bottom of the most recent dip).</li>
-        <li>Just below the absolute bottom of the massive green breakout candle.</li>
+        <li>ATR is calculated from the signal day.</li>
+        <li>Intraday stop hits exit at the stop price.</li>
+        <li>Gap-through stops exit at that session's open.</li>
     </ul>
     </div>
 
-    <div class="glossary-term">3. Holding Period & Taking Profit</div>
+    <div class="glossary-term">3. Tested Holding Period & Costs</div>
     <div class="glossary-def">
-    Swing trades typically last anywhere from <b>5 to 20 trading sessions</b> (1 to 4 weeks). 
+    A position that does not stop out exits at the close of the <b>20th holding session</b>. Backtest returns include configurable entry/exit slippage and round-trip transaction costs.
     <ul>
-        <li><b>Time Stops:</b> If a stock doesn't move in your favor within 7-10 days of a breakout, the momentum is dead. Sell it and free up your capital for a better setup.</li>
-        <li><b>Scaling Out:</b> If a stock shoots up 10% in just a few days, sell half of your position to lock in gains, and move your stop-loss up to your entry price for the remaining shares. This guarantees a risk-free trade.</li>
+        <li>No 7–10 day time stop is modeled.</li>
+        <li>No partial-profit or +10% target rule is modeled.</li>
     </ul>
     </div>
     """,
