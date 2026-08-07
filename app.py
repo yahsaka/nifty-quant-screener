@@ -540,37 +540,75 @@ with tab1:
             "otherwise exit at the close of the 20th holding session. "
             "Backtest assumptions include configurable slippage and transaction costs."
         )
-        st.markdown(
+       st.markdown(
             f"""
-                <div class="legacy-execution-guide" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
-                    <div class="card" style="min-height: auto;">
-                        <div class="card-label" style="color:var(--green);">1. Tested Entry (Next-Session Open)</div>
-                        <div class="card-note" style="margin-top:0.8rem; line-height:1.5;">
-                            The tested model enters at the next trading session's open after a qualifying score of 3 or higher.
-                            <br><br><b>Suggested Entry Zone:</b><br>
-                            <span style="font-size:1.1rem; color:var(--text); font-weight:600;">₹{latest_ema200:,.2f}</span> <span style="font-size:0.8rem;">(200 EMA)</span> to <span style="font-size:1.1rem; color:var(--text); font-weight:600;">₹{latest_close * 0.97:,.2f}</span> <span style="font-size:0.8rem;">(-3% dip)</span>
-                        </div>
+            <div class="legacy-execution-guide" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; margin-top: 1rem;">
+                
+                <!-- Card 1: Entry -->
+                <div class="card" style="min-height: auto; border-top: 3px solid var(--green); display: flex; flex-direction: column;">
+                    <div class="card-label" style="color:var(--green); display:flex; align-items:center; gap:0.4rem;">
+                        <span style="font-size:1rem;">🎯</span> 1. SUGGESTED ENTRY ZONE
                     </div>
-                    <div class="card" style="min-height: auto;">
-                        <div class="card-label" style="color:var(--red);">2. Tested ATR Stop-Loss</div>
-                        <div class="card-note" style="margin-top:0.8rem; line-height:1.5;">
-                            The tested model uses a stop 2 × ATR below the executed entry and treats gaps through the stop conservatively.
-                            <br><br>
-                            • <b>Below 50 EMA:</b> <span style="color:var(--text); font-weight:600;">₹{latest_ema50 * 0.99:,.2f}</span><br>
-                            • <b>Recent Swing Low:</b> <span style="color:var(--text); font-weight:600;">₹{swing_low * 0.99:,.2f}</span><br>
-                            • <b>Breakout Bottom:</b> <span style="color:var(--text); font-weight:600;">₹{latest_low * 0.99:,.2f}</span>
-                        </div>
+                    <div class="card-note" style="margin-top:0.8rem; line-height:1.5; flex-grow:1;">
+                        Wait for the next trading session's open. The ideal accumulation zone is between a slight pullback and major support.
                     </div>
-                    <div class="card" style="min-height: auto;">
-                        <div class="card-label" style="color:var(--amber);">3. Tested Holding Period</div>
-                        <div class="card-note" style="margin-top:0.8rem; line-height:1.5;">
-                            Positions that do not hit the stop are exited at the close of the 20th holding session.
-                            <br><br><b>Costs:</b><br>
-                            Sell half your position at <span style="font-size:1.1rem; color:var(--green); font-weight:600;">₹{target_10:,.2f}</span>, then move stop-loss to entry price.
+                    <div style="margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--line);">
+                        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 0.3rem;">
+                            <span style="font-size:0.85rem; color:var(--muted);">Aggressive (-3% dip)</span>
+                            <span style="font-size:1.1rem; color:var(--text); font-weight:600;">₹{latest_close * 0.97:,.2f}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                            <span style="font-size:0.85rem; color:var(--muted);">Conservative (200 EMA)</span>
+                            <span style="font-size:1.1rem; color:var(--text); font-weight:600;">₹{latest_ema200:,.2f}</span>
                         </div>
                     </div>
                 </div>
-                """,
+
+                <!-- Card 2: Stops -->
+                <div class="card" style="min-height: auto; border-top: 3px solid var(--red); display: flex; flex-direction: column;">
+                    <div class="card-label" style="color:var(--red); display:flex; align-items:center; gap:0.4rem;">
+                        <span style="font-size:1rem;">🛑</span> 2. STRUCTURAL STOP-LOSSES
+                    </div>
+                    <div class="card-note" style="margin-top:0.8rem; line-height:1.5; flex-grow:1;">
+                        Consider these logical structural levels (calculated at a 1% buffer below support) to invalidate the setup.
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--line);">
+                        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 0.3rem;">
+                            <span style="font-size:0.85rem; color:var(--muted);">Below 50 EMA</span>
+                            <span style="color:var(--text); font-weight:600;">₹{latest_ema50 * 0.99:,.2f}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 0.3rem;">
+                            <span style="font-size:0.85rem; color:var(--muted);">Breakout Bottom</span>
+                            <span style="color:var(--text); font-weight:600;">₹{latest_low * 0.99:,.2f}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                            <span style="font-size:0.85rem; color:var(--muted);">Recent Swing Low</span>
+                            <span style="color:var(--text); font-weight:600;">₹{swing_low * 0.99:,.2f}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Targets -->
+                <div class="card" style="min-height: auto; border-top: 3px solid var(--amber); display: flex; flex-direction: column;">
+                    <div class="card-label" style="color:var(--amber); display:flex; align-items:center; gap:0.4rem;">
+                        <span style="font-size:1rem;">⏳</span> 3. TRADE MANAGEMENT
+                    </div>
+                    <div class="card-note" style="margin-top:0.8rem; line-height:1.5; flex-grow:1;">
+                        For discretionary swing trading, secure partial profits into strength rather than holding strictly for time.
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--line); padding-bottom: 0.3rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 0.4rem;">
+                            <span style="font-size:0.85rem; color:var(--muted);">Take Profit (+10%)</span>
+                            <span style="font-size:1.15rem; color:var(--green); font-weight:700;">₹{target_10:,.2f}</span>
+                        </div>
+                        <span style="font-size:0.8rem; color:var(--muted); line-height: 1.4; display:block;">
+                            <b>Rule:</b> Sell 50% of the position at the target, then immediately move the stop-loss on the remainder to your entry price.
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+            """,
             unsafe_allow_html=True,
         )
       else:
