@@ -1,10 +1,25 @@
 import os
+import logging
+import tempfile
 import pandas as pd
 import yfinance as yf
 from tenacity import retry, stop_after_attempt, wait_exponential
 from datetime import datetime, timedelta
 
 CACHE_DIR = "data/ohlcv_cache"
+LOGGER = logging.getLogger(__name__)
+
+
+def _write_parquet_atomically(dataframe: pd.DataFrame, destination: str) -> None:
+    """Avoid leaving a corrupt cache file if writing is interrupted."""
+    with tempfile.NamedTemporaryFile(suffix=".parquet", dir=os.path.dirname(destination), delete=False) as temporary:
+        temporary_name = temporary.name
+    try:
+        dataframe.to_parquet(temporary_name)
+        os.replace(temporary_name, destination)
+    finally:
+        if os.path.exists(temporary_name):
+            os.unlink(temporary_name)
 
 # Retry up to 3 times, waiting exponentially between 2 and 10 seconds if it fails
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
@@ -22,7 +37,10 @@ def fetch_ticker_data(ticker_symbol: str, start_date: str, end_date: str) -> pd.
     if df.empty:
         raise ValueError(f"No data returned for {ticker_symbol} from yfinance")
         
-    return df
+    required_columns = {"Open", "High", "Low", "Close", "Volume"}
+    if not required_columns.issubset(df.columns):
+        raise ValueError(f"Incomplete OHLCV data for {ticker_symbol}: {list(df.columns)}")
+    return df.sort_index()
 
 def update_ticker_cache(ticker_symbol: str):
     """Updates the local Parquet cache incrementally for a given ticker."""
@@ -34,6 +52,8 @@ def update_ticker_cache(ticker_symbol: str):
     if os.path.exists(cache_file):
         # 1. Cache exists: Load it to find the last fetched date
         existing_df = pd.read_parquet(cache_file)
+        if existing_df.empty:
+            raise ValueError(f"Existing cache for {ticker_symbol} is empty")
         
         # Ensure the index is a datetime object for comparison
         if not pd.api.types.is_datetime64_any_dtype(existing_df.index):
@@ -52,8 +72,8 @@ def update_ticker_cache(ticker_symbol: str):
             
             # Combine, deduplicate, and save
             updated_df = pd.concat([existing_df, new_df])
-            updated_df = updated_df[~updated_df.index.duplicated(keep='last')]
-            updated_df.to_parquet(cache_file)
+            updated_df = updated_df[~updated_df.index.duplicated(keep='last')].sort_index()
+            _write_parquet_atomically(updated_df, cache_file)
             print(f"[{ticker_symbol}] Appended new data and saved to cache.")
             
         except Exception as e:
@@ -64,12 +84,13 @@ def update_ticker_cache(ticker_symbol: str):
         start_date = (datetime.today() - timedelta(days=730)).strftime('%Y-%m-%d')
         try:
             df = fetch_ticker_data(ticker_symbol, start_date, end_date)
-            df.to_parquet(cache_file)
+            _write_parquet_atomically(df, cache_file)
             print(f"[{ticker_symbol}] Created new 2-year history cache file.")
         except Exception as e:
             print(f"[{ticker_symbol}] Failed to create initial cache: {e}")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     os.makedirs("data", exist_ok=True)
     print("Fetching official Nifty 500 list from NSE...")
     try:
@@ -77,9 +98,12 @@ if __name__ == "__main__":
         url = "https://archives.nseindia.com/content/indices/ind_nifty500list.csv"
         headers = {'User-Agent': 'Mozilla/5.0'}
         import requests
-        req = requests.get(url, headers=headers)
+        req = requests.get(url, headers=headers, timeout=30)
+        req.raise_for_status()
         from io import StringIO
         nifty_df = pd.read_csv(StringIO(req.text))
+        if "Symbol" not in nifty_df.columns:
+            raise ValueError("NSE list did not contain a Symbol column")
         
         # Save it to our data folder
         ticker_file = "data/nifty500_tickers.csv"
@@ -94,9 +118,9 @@ if __name__ == "__main__":
         print("Falling back to local CSV if it exists...")
         try:
             tickers = pd.read_csv("data/nifty500_tickers.csv")['Symbol'].tolist()
-        except:
-            print("No local CSV found. Exiting.")
-            exit()
+        except (FileNotFoundError, KeyError, pd.errors.EmptyDataError) as fallback_exc:
+            LOGGER.error("No usable local ticker CSV: %s", fallback_exc)
+            raise SystemExit(1)
     
     print("\nStarting full Nifty 500 data fetch (This will take a few minutes)...")
     
