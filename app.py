@@ -111,7 +111,6 @@ def load_equity_master():
     if os.path.exists(EQUITY_CSV):
         try:
             df = pd.read_csv(EQUITY_CSV)
-            # Normalize column names just in case
             df.columns = [c.strip().upper() for c in df.columns]
             if "SYMBOL" in df.columns and "NAME OF COMPANY" in df.columns:
                 return df
@@ -124,13 +123,14 @@ def find_cached_ticker(company_name, cache_dir):
     """Maps broker company names to exact NSE symbols using EQUITY_L.csv."""
     original_name = str(company_name).strip().upper()
     
-    # 0. Hardcoded Common Aliases for ETFs
+    # 0. Hardcoded Common Aliases for ETFs & Edge cases
     KNOWN_ALIASES = {
         "LIQUID BEES": "LIQUIDBEES.NS",
         "LIQUIDBEES": "LIQUIDBEES.NS",
         "NIP IND ETF LIQUID BEES": "LIQUIDBEES.NS",
         "GOLD BEES": "GOLDBEES.NS",
         "NIFTY BEES": "NIFTYBEES.NS",
+        "OIL AND NATURAL GAS CORP.": "ONGC.NS",
     }
     if original_name in KNOWN_ALIASES:
         return KNOWN_ALIASES[original_name]
@@ -147,10 +147,10 @@ def find_cached_ticker(company_name, cache_dir):
         if not match_name.empty:
             return f"{match_name.iloc[0]['SYMBOL']}.NS"
 
-        # C. Normalized match (stripping LIMITED, LTD, punctuation)
+        # C. Normalized match (handling AND vs &, stripping stopwords/punctuation)
         def clean(txt):
-            txt = str(txt).upper().replace("&", "AND").replace(".", "")
-            txt = re.sub(r"[^A-Z0-9\s]", " ", txt)
+            txt = str(txt).upper().replace(" AND ", " & ").replace(".", "")
+            txt = re.sub(r"[^A-Z0-9\s&]", " ", txt)
             stopwords = {"LTD", "LIMITED", "INC", "CORP", "CORPORATION", "CO", "COMPANY"}
             return "".join([w for w in txt.split() if w not in stopwords])
 
