@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import difflib
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
@@ -130,53 +131,62 @@ def load_stock_ohlcv(ticker: str):
 
 
 def find_cached_ticker(company_name, cache_dir):
-    """Fuzzy matching to link full broker company names to local YF ticker symbols."""
-    if not os.path.exists(cache_dir):
-        return company_name
-        
-    cached_files = [
-        f.replace(".parquet", "")
-        for f in os.listdir(cache_dir)
-        if f.endswith(".parquet")
-    ]
-
-    # Clean the input company name, removing common corporate suffixes
-    clean_name = re.sub(r"[^a-zA-Z0-9\s]", "", str(company_name)).upper()
-    suffixes = [" LIMITED", " LTD", " INC", " CORP", " CORPORATION", " LTD."]
-    for suffix in suffixes:
-        if clean_name.endswith(suffix):
-            clean_name = clean_name[: -len(suffix)].strip()
+    """Smart matching using NSE official names, local cache, and heuristics."""
+    company_name = str(company_name).strip().upper()
     
-    clean_name_no_space = clean_name.replace(" ", "")
+    # 1. Check NSE CSV Mapping via Fuzzy String Matching (Translates names to symbols)
+    nse_csv = "data/nifty500_tickers.csv"
+    if os.path.exists(nse_csv):
+        try:
+            nse_df = pd.read_csv(nse_csv)
+            if "Company Name" in nse_df.columns and "Symbol" in nse_df.columns:
+                nse_names = nse_df["Company Name"].dropna().astype(str).str.upper().tolist()
+                
+                # Check for exact ticker matches first
+                if company_name in nse_df["Symbol"].dropna().astype(str).str.upper().tolist():
+                    return f"{company_name}.NS"
+                
+                # Fuzzy match the company name (cutoff 0.55 allows "MOB LTD" to match "MOBILITY LTD.")
+                matches = difflib.get_close_matches(company_name, nse_names, n=1, cutoff=0.55)
+                if matches:
+                    best_match_name = matches[0]
+                    sym = nse_df[nse_df["Company Name"].str.upper() == best_match_name].iloc[0]["Symbol"]
+                    return f"{sym}.NS"
+        except Exception:
+            pass
 
-    # 1. Exact Match Check
-    if company_name in cached_files:
-        return company_name
+    # 2. Heuristic Cleaning & Local Cache Match (Fallback for weird formats)
+    clean_company = re.sub(r"[^A-Z0-9\s]", "", company_name)
+    core_name = clean_company
+    for suffix in [" LIMITED", " LTD", " INC", " CORP", " CORPORATION", " COMPANY", " IND ETF", " BEES"]:
+        core_name = core_name.replace(suffix, "")
+    core_name = core_name.strip()
+    core_name_no_space = core_name.replace(" ", "")
 
-    # 2. Heuristic Matching
-    best_match = None
-    for ticker in cached_files:
-        clean_ticker = ticker.replace(".NS", "").upper()
+    if os.path.exists(cache_dir):
+        cached_files = [f.replace(".parquet", "") for f in os.listdir(cache_dir) if f.endswith(".parquet")]
         
-        # A. Exact match with the cleaned name
-        if clean_ticker == clean_name_no_space or clean_ticker == clean_name.replace(" ", ""):
-            return ticker
+        if company_name in cached_files:
+            return company_name
             
-        # B. Ticker is fully contained within the cleaned company name
-        if clean_ticker in clean_name_no_space and len(clean_ticker) >= 3:
-             if best_match is None or len(clean_ticker) > len(best_match[1]):
-                 best_match = (ticker, clean_ticker)
+        for ticker in cached_files:
+            sym = ticker.replace(".NS", "").upper()
+            if sym == core_name_no_space or (len(sym) >= 4 and sym in core_name_no_space):
+                return ticker
+                
+        symbols_only = [t.replace(".NS", "") for t in cached_files]
+        close_symbols = difflib.get_close_matches(core_name_no_space, symbols_only, n=1, cutoff=0.7)
+        if close_symbols:
+            return f"{close_symbols[0]}.NS"
 
-    # 3. Fallback: If we can't map it to a cached Nifty 500 symbol, 
-    # we should NOT return the full company name to yfinance.
-    # We will try to guess the NSE symbol by taking the first word of the company name.
-    if best_match:
-         return best_match[0]
+    # 3. Final Fallback (If not Nifty 500 and not cached, e.g. liquid ETFs)
+    words = core_name.split()
+    if len(words) == 1:
+        return f"{words[0]}.NS"
+    elif "LIQUID" in core_name:
+        return "LIQUIDBEES.NS"
     else:
-         # Guess ticker: Take the first word, remove non-alphanumeric, append .NS
-         guessed_ticker = company_name.split(" ")[0]
-         guessed_ticker = re.sub(r"[^a-zA-Z0-9]", "", guessed_ticker).upper()
-         return f"{guessed_ticker}.NS"
+        return f"{''.join(words[:2])}.NS"
 
 
 def parse_broker_file(file_obj):
