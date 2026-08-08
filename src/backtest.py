@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import pandas_ta as ta
 import yfinance as yf
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from indicators import calculate_indicators
 from screener import BEARISH, BULLISH, UNKNOWN, evaluate_setup
@@ -35,13 +36,22 @@ def _finite(value: object) -> Optional[float]:
     return number if np.isfinite(number) else None
 
 
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10), reraise=True)
+def fetch_nifty_index(period: str) -> pd.DataFrame:
+    """Fetches Nifty 50 data with exponential backoff for transient failures."""
+    df = yf.download("^NSEI", period=period, progress=False)
+    if df.empty:
+        raise ValueError("Nifty 50 data returned empty.")
+    return df
+
+
 def get_market_regimes(period: str = "10y") -> dict:
     """Map each Nifty session to Bullish/Bearish under the shared 200/3 rule."""
     try:
-        nifty = yf.download("^NSEI", period=period, progress=False)
+        nifty = fetch_nifty_index(period)
         if isinstance(nifty.columns, pd.MultiIndex):
             nifty.columns = nifty.columns.get_level_values(0)
-        if nifty.empty or "Close" not in nifty or len(nifty) < 203:
+        if "Close" not in nifty or len(nifty) < 203:
             raise ValueError("insufficient Nifty history for 200 EMA")
         nifty = nifty.copy()
         nifty["EMA_200"] = nifty["Close"].ewm(span=200, adjust=False).mean()
