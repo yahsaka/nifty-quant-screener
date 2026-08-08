@@ -41,6 +41,43 @@ TRIGGER_HELP = {
     "MACD_BULLISH_CROSS": "MACD line crossed above the signal line today, indicating an immediate shift to upward momentum.",
 }
 
+# Short, jargon-free label shown on the pill itself (tooltip above still gives the full explanation)
+TRIGGER_LABEL = {
+    "ABOVE_EMA_200": "Long-term uptrend",
+    "EMA_200_BREAKOUT": "Fresh breakout",
+    "ABOVE_EMA_50": "Medium-term uptrend",
+    "VOLUME_SPIKE_2X": "High volume",
+    "RSI_60_TO_70": "Strong momentum",
+    "MACD_BULLISH_CROSS": "Bullish crossover",
+}
+
+# Clause used to build the one-line plain-English summary sentence per stock
+TRIGGER_CLAUSE = {
+    "ABOVE_EMA_200": "sitting in a long-term uptrend",
+    "EMA_200_BREAKOUT": "just breaking out above its long-term average",
+    "ABOVE_EMA_50": "trading above its medium-term average",
+    "VOLUME_SPIKE_2X": "seeing unusually high trading volume",
+    "RSI_60_TO_70": "showing strong, not overheated, momentum",
+    "MACD_BULLISH_CROSS": "showing a fresh bullish momentum shift",
+}
+
+
+def build_summary_sentence(ticker: str, triggers: list, status: str) -> str:
+    """Turn raw trigger codes into one plain-English sentence for non-expert users."""
+    clauses = [TRIGGER_CLAUSE.get(t, t) for t in triggers]
+    if not clauses:
+        return f"{ticker} does not currently confirm any of the 6 signals."
+    if len(clauses) == 1:
+        clause_text = clauses[0]
+    else:
+        clause_text = ", ".join(clauses[:-1]) + ", and " + clauses[-1]
+    verdict = (
+        "a high-conviction Trade-Ready setup"
+        if status == "Trade-Ready"
+        else "an early-stage Watchlist setup"
+    )
+    return f"{ticker} is {clause_text} today — {verdict} ({len(triggers)}/6 signals)."
+
 st.markdown(
     """
 <style>
@@ -226,6 +263,53 @@ h2 {
     border-color:var(--green);
     background:rgba(53,217,154,.08);
     color:#a7efd2;
+}
+
+.summary-line {
+    color:#dfe6ec;
+    font-size:.92rem;
+    line-height:1.5;
+    margin-top:.5rem;
+    padding-top:.5rem;
+    border-top:1px solid var(--line-soft);
+}
+
+.chip-row {
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem;
+    margin-top:.7rem;
+}
+
+.stat-chip {
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    border:1px solid var(--line);
+    background:var(--surface);
+    border-radius:10px;
+    padding:.4rem .65rem;
+    min-width:88px;
+    cursor:help;
+    transition:border-color .15s ease;
+}
+
+.stat-chip:hover {
+    border-color:#3b4c5b;
+}
+
+.stat-chip-label {
+    color:var(--muted);
+    font-size:.62rem;
+    font-weight:750;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+}
+
+.stat-chip-value {
+    font-size:.92rem;
+    font-weight:750;
+    margin-top:.1rem;
 }
 
 div[data-testid="stDataFrame"] {
@@ -890,22 +974,30 @@ your own research before trading.
                 else f"Confirms {WATCHLIST_MIN_SCORE}-{TRADE_READY_MIN_SCORE-1} of 6 checks — still forming."
             )
             triggers = row.get("triggers", [])
+            summary_sentence = build_summary_sentence(selected_stock, triggers, row.get("status", ""))
             trigger_html = "".join(
                 f'<span class="pill" title="{TRIGGER_HELP.get(t, t)}" '
-                f'style="cursor:help;">✓ {t}</span>'
+                f'style="cursor:help;">✓ {TRIGGER_LABEL.get(t, t)}</span>'
                 for t in triggers
+            )
+            chip_html = "".join(
+                f'<div class="stat-chip" title="{tip}"><div class="stat-chip-label">{label}</div>'
+                f'<div class="stat-chip-value">{value}</div></div>'
+                for label, value, tip in [
+                    ("Price", f"₹{row.get('close', 0):,.2f}", "Most recent closing price."),
+                    ("Score", f"{int(row.get('score', 0))}/6", "How many of the 6 technical checks this stock passes today."),
+                    ("RSI", f"{row.get('rsi_14', 0):.1f}", "Momentum gauge (0-100). This screener looks for the 60-70 'strong, not overheated' zone."),
+                    ("Volume", f"{row.get('volume_ratio', 0):.2f}×", "Today's volume vs. its normal 20-day average."),
+                    ("Above 50 EMA", f"{row.get('pct_above_50', 0):+.2f}%", "Distance of price above its 50-day trend average."),
+                ]
             )
             st.markdown(
                 f"""<div class="stock-head"><div class="stock-title">{selected_stock}"""
                 f""" <span class="{status_class}" title="{status_tooltip}" """
                 f"""style="font-size:.8rem;margin-left:.5rem;cursor:help;">● {row.get("status","")}</span></div>"""
-                f"""<div class="stock-meta">₹{row.get("close",0):,.2f} &nbsp; · &nbsp;"""
-                f""" <span title="How many of the 6 technical checks this stock passes today." style="cursor:help;">Score"""
-                f""" {int(row.get("score",0))}/6</span> &nbsp; · &nbsp; <span title="Relative Strength Index: momentum gauge 0-100. This screener looks for the 60-70 'strong but not overheated' zone." style="cursor:help;">RSI"""
-                f""" {row.get("rsi_14",0):.1f}</span> &nbsp; · &nbsp; <span title="Today's trading volume vs. the normal 20-day average." style="cursor:help;">Volume"""
-                f""" {row.get("volume_ratio",0):.2f}×</span> &nbsp; · &nbsp;"""
-                f""" <span title="Distance of price above its 50-day trend average." style="cursor:help;">{row.get("pct_above_50",0):+.2f}% above 50 EMA</span></div><div"""
-                f""" style="margin-top:.65rem">{trigger_html}</div></div>""",
+                f"""<div class="summary-line">🗣️ {summary_sentence}</div>"""
+                f"""<div class="chip-row">{chip_html}</div><div"""
+                f""" style="margin-top:.7rem">{trigger_html}</div></div>""",
                 unsafe_allow_html=True,
             )
 
@@ -997,14 +1089,14 @@ your own research before trading.
                     )
                 else:
                     st.caption(
-                        f"Mechanically derived from the {selected_stock} cache as of "
-                        f"{trade_plan['reference_date'].strftime('%d %b %Y')} using the same "
-                        f"rules tested in backtest.py — not a recommendation to trade."
+                        f"A 3-step mechanical plan for {selected_stock}, as of "
+                        f"{trade_plan['reference_date'].strftime('%d %b %Y')} — the same "
+                        f"rules already tested in backtest.py. **Not a recommendation to trade.**"
                     )
                     p1, p2, p3, p4 = st.columns(4)
                     p1.markdown(
                         metric_card(
-                            "Reference Entry",
+                            "① Reference Entry",
                             f"₹{trade_plan['entry']:,.2f}",
                             "Last close · tested model enters at the next session's open.",
                             "",
@@ -1014,11 +1106,11 @@ your own research before trading.
                     )
                     p2.markdown(
                         metric_card(
-                            "Model Stop-Loss",
+                            "② Stop-Loss",
                             f"₹{trade_plan['stop']:,.2f}",
-                            f"{ATR_MULTIPLIER}× ATR(14) = ₹{trade_plan['atr']:.2f} below entry",
+                            "Where the plan exits if the price falls — caps the downside.",
                             "bad",
-                            "Gap-through opens are filled at the weaker opening price in the backtest, not this exact level.",
+                            f"{ATR_MULTIPLIER}× ATR(14) = ₹{trade_plan['atr']:.2f} below entry. Gap-through opens are filled at the weaker opening price in the backtest, not this exact level.",
                         ),
                         unsafe_allow_html=True,
                     )
@@ -1026,9 +1118,9 @@ your own research before trading.
                         metric_card(
                             "Risk / Share",
                             f"₹{trade_plan['risk_per_share']:,.2f}",
-                            f"{trade_plan['risk_pct']:.2f}% of entry price",
+                            f"{trade_plan['risk_pct']:.2f}% of entry price · what you'd lose per share if the stop is hit",
                             "warn",
-                            "Distance from reference entry to the model stop-loss.",
+                            "Distance from reference entry to the stop-loss.",
                         ),
                         unsafe_allow_html=True,
                     )
@@ -1039,16 +1131,38 @@ your own research before trading.
                     )
                     p4.markdown(
                         metric_card(
-                            "Time-Exit By",
+                            "③ Time-Exit By",
                             exit_label,
-                            f"If the stop isn't hit within {HOLD_DAYS} sessions (approx., excludes holidays)",
+                            f"Exit here if the stop isn't hit first (approx., excludes holidays)",
                             "",
-                            "The tested model force-exits at the close of the Nth holding session.",
+                            f"The tested model force-exits at the close of the {HOLD_DAYS}th holding session.",
                         ),
                         unsafe_allow_html=True,
                     )
 
-                    with st.expander("Position-size calculator"):
+                    with st.expander("ℹ️ How this plan is calculated"):
+                        st.write(
+                            f"**① Entry:** the tested model enters at the next trading session's "
+                            f"open, right after a stock reaches a score ≥ {WATCHLIST_MIN_SCORE}. "
+                            "Today's closing price is shown above as the closest available reference."
+                        )
+                        st.write(
+                            f"**② Stop-Loss:** placed {ATR_MULTIPLIER}× the stock's own recent "
+                            "volatility (ATR) below the entry price. If the market gaps down "
+                            "through the stop overnight, the model exits at that weaker opening "
+                            "price instead of the exact stop level."
+                        )
+                        st.write(
+                            f"**③ Time-Exit:** if the stop is never hit, the position is closed "
+                            f"at the close of the {HOLD_DAYS}th holding session regardless of price."
+                        )
+                        st.caption(
+                            "Backtest returns for this rule set already include configurable "
+                            "slippage and round-trip transaction costs — see the 📚 TA Glossary "
+                            "tab for the full breakdown."
+                        )
+
+                    with st.expander("🧮 Position-size calculator"):
                         st.caption(
                             "Answers 'how many shares should I buy?' based on how much "
                             "money you're okay losing if the stop-loss is hit — a core "
@@ -1082,18 +1196,6 @@ your own research before trading.
                             f"₹{risk_amount:,.0f} at risk (stop hit) · position size ≈ ₹{position_value:,.0f} "
                             f"({(position_value / capital * 100) if capital else 0:.1f}% of allocated capital)."
                         )
-
-                st.markdown(
-                    '<div class="section-kicker" style="margin-top:'
-                    ' 1.5rem;">Trade Execution Guide</div>',
-                    unsafe_allow_html=True,
-                )
-                st.info(
-                    f"Tested model: enter at the next session's open after a score ≥ {WATCHLIST_MIN_SCORE}; "
-                    f"use a {ATR_MULTIPLIER} × ATR stop (with gap-through stops filled at the open); "
-                    f"otherwise exit at the close of the {HOLD_DAYS}th holding session. "
-                    "Backtest assumptions include configurable slippage and transaction costs."
-                )
             else:
                 st.info(f"No OHLCV cache found for {selected_stock}.")
         else:
