@@ -7,6 +7,12 @@ import plotly.graph_objects as go
 from datetime import datetime
 import yfinance as yf
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 st.set_page_config(
     page_title="Nifty Quant",
     page_icon="📈",
@@ -14,9 +20,15 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-CACHE_DIR = "data/ohlcv_cache"
-SCREENER_JSON = "data/latest_screener_results.json"
+CACHE_DIR = os.getenv("CACHE_DIR", "data/ohlcv_cache")
+SCREENER_JSON = os.getenv("SCREENER_JSON_PATH", "data/latest_screener_results.json")
 EQUITY_CSV = "EQUITY_L.csv"
+
+# Load Env Vars for dynamic UI text interpolation
+WATCHLIST_MIN_SCORE = int(os.getenv("SCREENER_WATCHLIST_MIN_SCORE", "3"))
+TRADE_READY_MIN_SCORE = int(os.getenv("SCREENER_TRADE_READY_MIN_SCORE", "5"))
+HOLD_DAYS = int(os.getenv("BACKTEST_HOLD_DAYS", "20"))
+ATR_MULTIPLIER = float(os.getenv("BACKTEST_ATR_MULTIPLIER", "2.0"))
 
 # Dictionary to map technical triggers to plain-English explanations for the UI
 TRIGGER_HELP = {
@@ -405,7 +417,7 @@ with tab1:
             metric_card(
                 "Opportunities",
                 screener_data.get("total_signals", 0),
-                "Quant score ≥ 3",
+                f"Quant score ≥ {WATCHLIST_MIN_SCORE}",
                 "",
                 "Stocks passing strict technical filters.",
             ),
@@ -415,7 +427,7 @@ with tab1:
             metric_card(
                 "Trade Ready",
                 trade_ready_count,
-                "Quant score 5–6",
+                f"Quant score {TRADE_READY_MIN_SCORE}–6",
                 "good" if trade_ready_count else "",
                 "High-conviction breakout setups.",
             ),
@@ -441,7 +453,10 @@ with tab1:
             status_filter = f1.multiselect(
                 "Status", ["Trade-Ready", "Watchlist"], default=["Trade-Ready", "Watchlist"]
             )
-            min_score = f2.selectbox("Minimum score", [3, 4, 5, 6], index=0)
+            
+            # Dynamically build score dropdown starting from WATCHLIST_MIN_SCORE
+            score_options = list(range(WATCHLIST_MIN_SCORE, 7))
+            min_score = f2.selectbox("Minimum score", score_options, index=0)
             search = f3.text_input("Find ticker", placeholder="Search RELIANCE, INFY…")
 
             filtered = signals_df[
@@ -481,7 +496,7 @@ with tab1:
                 ),
                 "status": st.column_config.TextColumn(
                     "Status",
-                    help="Trade-Ready (Score 5-6) or Watchlist (Score 3-4).",
+                    help=f"Trade-Ready (Score {TRADE_READY_MIN_SCORE}-6) or Watchlist (Score {WATCHLIST_MIN_SCORE}-{TRADE_READY_MIN_SCORE-1}).",
                 ),
                 "score": st.column_config.ProgressColumn(
                     "Score",
@@ -621,9 +636,9 @@ with tab1:
                     unsafe_allow_html=True,
                 )
                 st.info(
-                    "Tested model: enter at the next session's open after a score ≥ 3; "
-                    "use a 2 × ATR stop (with gap-through stops filled at the open); "
-                    "otherwise exit at the close of the 20th holding session. "
+                    f"Tested model: enter at the next session's open after a score ≥ {WATCHLIST_MIN_SCORE}; "
+                    f"use a {ATR_MULTIPLIER} × ATR stop (with gap-through stops filled at the open); "
+                    f"otherwise exit at the close of the {HOLD_DAYS}th holding session. "
                     "Backtest assumptions include configurable slippage and transaction costs."
                 )
             else:
@@ -864,15 +879,15 @@ with tab3:
 
     st.subheader("🛡️ Risk Management & Trading Rules")
     st.markdown(
-        """
+        f"""
         <div class="glossary-term">1. Tested Entry</div>
         <div class="glossary-def">
-        The historical model enters at the next trading session's open after a qualifying six-point screener score of at least 3. It does not test pullback or breakout-retest entries.
+        The historical model enters at the next trading session's open after a qualifying six-point screener score of at least {WATCHLIST_MIN_SCORE}. It does not test pullback or breakout-retest entries.
         </div>
         
         <div class="glossary-term">2. Tested Stop-Loss</div>
         <div class="glossary-def">
-        The model places a stop at <b>2 × ATR</b> below the executed entry price. If the next session opens below that stop, the simulation exits at the weaker opening price to account for a gap:
+        The model places a stop at <b>{ATR_MULTIPLIER} × ATR</b> below the executed entry price. If the next session opens below that stop, the simulation exits at the weaker opening price to account for a gap:
         <ul>
             <li>ATR is calculated from the signal day.</li>
             <li>Intraday stop hits exit at the stop price.</li>
@@ -882,7 +897,7 @@ with tab3:
 
         <div class="glossary-term">3. Tested Holding Period & Costs</div>
         <div class="glossary-def">
-        A position that does not stop out exits at the close of the <b>20th holding session</b>. Backtest returns include configurable entry/exit slippage and round-trip transaction costs.
+        A position that does not stop out exits at the close of the <b>{HOLD_DAYS}th holding session</b>. Backtest returns include configurable entry/exit slippage and round-trip transaction costs.
         <ul>
             <li>No 7–10 day time stop is modeled.</li>
             <li>No partial-profit or +10% target rule is modeled.</li>
