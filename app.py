@@ -154,18 +154,66 @@ def find_cached_ticker(company_name, cache_dir):
     
     # 0. Hardcoded Common Aliases for ETFs & Edge cases
     KNOWN_ALIASES = {
+        # --- Popular ETFs & Indices ---
         "LIQUID BEES": "LIQUIDBEES.NS",
         "LIQUIDBEES": "LIQUIDBEES.NS",
         "NIP IND ETF LIQUID BEES": "LIQUIDBEES.NS",
+        "NIPPON INDIA ETF LIQUID BEES": "LIQUIDBEES.NS",
         "GOLD BEES": "GOLDBEES.NS",
+        "NIPPON INDIA ETF GOLDBEES": "GOLDBEES.NS",
         "NIFTY BEES": "NIFTYBEES.NS",
+        "NIPPON INDIA ETF NIFTY 50 BEES": "NIFTYBEES.NS",
+        
+        # --- Major Conglomerates & Auto Demergers ---
         "OIL AND NATURAL GAS CORP.": "ONGC.NS",
-        "AMARA RAJA ENERGY MOB LTD": "ARE&M.NS",
-        "AMARA RAJA ENERGY MOBILITY LIMITED": "ARE&M.NS",
-        "JKUMAR INFR.LTD.": "JKIL.NS",
-        "J.KUMAR INFRAPROJECTS LIMITED": "JKIL.NS",
+        "OIL & NATURAL GAS CORPORATION": "ONGC.NS",
+        "TATA MOTORS LIMITED": "TMCV.NS",
         "TATA MOTORS PASS VEH LTD": "TMPV.NS",
         "TATA MOTORS PASSENGER VEHICLES LIMITED": "TMPV.NS",
+        "RELIANCE INDUSTRIES LTD": "RELIANCE.NS",
+        "RELIANCE INDUSTRIES LIMITED": "RELIANCE.NS",
+        
+        # --- Infrastructure & Engineering ---
+        "AMARA RAJA ENERGY MOB LTD": "ARE&M.NS",
+        "AMARA RAJA ENERGY MOBILITY LIMITED": "ARE&M.NS",
+        "AMARA RAJA BATTERIES": "ARE&M.NS",
+        "JKUMAR INFR.LTD.": "JKIL.NS",
+        "J.KUMAR INFRAPROJECTS LIMITED": "JKIL.NS",
+        "H.G. INFRA ENGINEERING LIMITED": "HGINFRA.NS",
+        "H.G.INFRA ENGINEERING LTD": "HGINFRA.NS",
+        
+        # --- Banking, Financial Services & Insurance ---
+        "HDFC BANK LTD": "HDFCBANK.NS",
+        "HDFC BANK LIMITED": "HDFCBANK.NS",
+        "ICICI BANK LTD": "ICICIBANK.NS",
+        "ICICI BANK LIMITED": "ICICIBANK.NS",
+        "STATE BANK OF INDIA": "SBIN.NS",
+        "AXIS BANK LTD": "AXISBANK.NS",
+        "KOTAK MAHINDRA BANK LTD": "KOTAKBANK.NS",
+        
+        # --- IT & Technology ---
+        "TATA CONSULTANCY SERVICES LTD": "TCS.NS",
+        "TCS": "TCS.NS",
+        "INFOSYS LTD": "INFY.NS",
+        "INFOSYS LIMITED": "INFY.NS",
+        "WIPRO LTD": "WIPRO.NS",
+        "HCL TECHNOLOGIES LTD": "HCLTECH.NS",
+        "TECH MAHINDRA LTD": "TECHM.NS",
+        
+        # --- Pharma & Healthcare ---
+        "SUN PHARMACEUTICAL INDUSTRIES LTD": "SUNPHARMA.NS",
+        "SUN PHARMA": "SUNPHARMA.NS",
+        "DR. REDDY'S LABORATORIES LTD": "DRREDDY.NS",
+        "CIPLA LTD": "CIPLA.NS",
+        "DIVI'S LABORATORIES LTD": "DIVISLAB.NS",
+        
+        # --- Metals, Energy & Commodities ---
+        "TATA STEEL LTD": "TATASTEEL.NS",
+        "JSW STEEL LTD": "JSWSTEEL.NS",
+        "HINDALCO INDUSTRIES LTD": "HINDALCO.NS",
+        "COAL INDIA LTD": "COALINDIA.NS",
+        "NTPC LTD": "NTPC.NS",
+        "POWER GRID CORP OF INDIA LTD": "POWERGRID.NS"
     }
     if original_name in KNOWN_ALIASES:
         return KNOWN_ALIASES[original_name]
