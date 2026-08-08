@@ -663,6 +663,30 @@ with tab1:
             else "warn"
         )
 
+        with st.expander("🧭 New here? 60-second guide to this screen", expanded=False):
+            st.markdown(
+                """
+This tool scans 500 large Indian stocks every day and flags the ones showing signs of
+upward momentum, based on price trend and trading activity — not tips or predictions.
+
+- **Market Regime** — the overall mood of the market. When it's Bearish, this tool
+  hides all setups, since buying into a falling market is historically much riskier.
+- **Score (0-6)** — how many technical checks a stock passes today (trend, momentum,
+  volume). Higher isn't a promise, just more confirmation.
+- **Status** — *Trade-Ready* stocks pass the most checks; *Watchlist* stocks are
+  earlier / less confirmed.
+- **Entry & Exit Plan** — click any stock below to see a suggested stop-loss level
+  and time-based exit, calculated the same way this strategy was historically tested.
+
+Every technical term (RSI, EMA, ATR, MACD...) has a **hover tooltip** — just rest your
+cursor over any column header, card, or badge. For full definitions, see the
+**📚 TA Glossary** tab above.
+
+**Nothing here is financial advice** — it's a rules-based educational tool. Always do
+your own research before trading.
+                """
+            )
+
         c1, c2, c3, c4 = st.columns(4)
         c1.markdown(
             metric_card(
@@ -670,7 +694,9 @@ with tab1:
                 market_regime.upper(),
                 "Nifty 50 vs 200-day EMA · 3-session confirmation",
                 regime_state,
-                "Shows if the overall market is healthy.",
+                "Is the overall Indian market currently trending up (Bullish), down "
+                "(Bearish), or unclear? This tool only looks for buy setups when the "
+                "market itself is healthy.",
             ),
             unsafe_allow_html=True,
         )
@@ -680,7 +706,7 @@ with tab1:
                 f'{screener_data.get("total_scanned",0):,}',
                 "Nifty 500 universe",
                 "",
-                "Total stocks evaluated today.",
+                "How many of India's top 500 stocks were checked in today's scan.",
             ),
             unsafe_allow_html=True,
         )
@@ -690,7 +716,9 @@ with tab1:
                 screener_data.get("total_signals", 0),
                 f"Quant score ≥ {WATCHLIST_MIN_SCORE}",
                 "",
-                "Stocks passing strict technical filters.",
+                "Stocks that passed at least "
+                f"{WATCHLIST_MIN_SCORE} of the 6 technical checks today — see the "
+                "table below.",
             ),
             unsafe_allow_html=True,
         )
@@ -700,15 +728,18 @@ with tab1:
                 trade_ready_count,
                 f"Quant score {TRADE_READY_MIN_SCORE}–6",
                 "good" if trade_ready_count else "",
-                "High-conviction breakout setups.",
+                "The strongest subset of Opportunities — stocks confirming "
+                f"{TRADE_READY_MIN_SCORE} or more of the 6 checks at once.",
             ),
             unsafe_allow_html=True,
         )
 
         if market_regime == "Bearish":
             st.warning(
-                "Market regime is bearish — long setups are filtered while Nifty 50"
-                " has closed below its 200-day EMA for three consecutive sessions."
+                "📉 **Market regime is bearish** — long (buy) setups are hidden right now "
+                "because Nifty 50 has closed below its 200-day trend average for "
+                "three sessions in a row. Historically, buying into a falling market "
+                "is riskier, so this screener pauses rather than force a signal."
             )
         elif market_regime == "Unknown":
             st.warning("Market regime data is unavailable — long setup classification is suspended.")
@@ -722,13 +753,33 @@ with tab1:
         if not signals_df.empty:
             f1, f2, f3 = st.columns([1.2, 1.2, 2.6])
             status_filter = f1.multiselect(
-                "Status", ["Trade-Ready", "Watchlist"], default=["Trade-Ready", "Watchlist"]
+                "Status",
+                ["Trade-Ready", "Watchlist"],
+                default=["Trade-Ready", "Watchlist"],
+                help=(
+                    "Trade-Ready = strongest setups (score "
+                    f"{TRADE_READY_MIN_SCORE}-6). Watchlist = still forming, worth "
+                    f"keeping an eye on (score {WATCHLIST_MIN_SCORE}-{TRADE_READY_MIN_SCORE - 1})."
+                ),
             )
             
             # Dynamically build score dropdown starting from WATCHLIST_MIN_SCORE
             score_options = list(range(WATCHLIST_MIN_SCORE, 7))
-            min_score = f2.selectbox("Minimum score", score_options, index=0)
-            search = f3.text_input("Find ticker", placeholder="Search RELIANCE, INFY…")
+            min_score = f2.selectbox(
+                "Minimum score",
+                score_options,
+                index=0,
+                help=(
+                    "Each stock earns up to 6 points, one per technical rule it "
+                    "passes today. Raise this to see only stocks confirming more "
+                    "rules at once — historically stronger setups, but fewer results."
+                ),
+            )
+            search = f3.text_input(
+                "Find ticker",
+                placeholder="Search RELIANCE, INFY…",
+                help="Type any part of an NSE symbol to narrow the list below.",
+            )
 
             filtered = signals_df[
                 signals_df["status"].isin(status_filter)
@@ -763,41 +814,45 @@ with tab1:
 
             col_config = {
                 "ticker": st.column_config.TextColumn(
-                    "Ticker", help="NSE trading symbol."
+                    "Ticker", help="The stock's NSE trading symbol — search for this on your broker app."
                 ),
                 "status": st.column_config.TextColumn(
                     "Status",
-                    help=f"Trade-Ready (Score {TRADE_READY_MIN_SCORE}-6) or Watchlist (Score {WATCHLIST_MIN_SCORE}-{TRADE_READY_MIN_SCORE-1}).",
+                    help=f"Trade-Ready = strongest setup (Score {TRADE_READY_MIN_SCORE}-6). Watchlist = still forming (Score {WATCHLIST_MIN_SCORE}-{TRADE_READY_MIN_SCORE-1}).",
                 ),
                 "score": st.column_config.ProgressColumn(
                     "Score",
                     min_value=0,
                     max_value=6,
                     format="%d / 6",
-                    help="Quantitative strength score.",
+                    help="How many of the 6 technical rules (trend, momentum, volume) this stock passes today. Higher = more confirmation, not a guarantee.",
                 ),
                 "close": st.column_config.NumberColumn(
-                    "Price", format="₹%.2f", help="Last closing price."
+                    "Price", format="₹%.2f", help="Most recent closing price on the NSE."
                 ),
                 "rsi_14": st.column_config.NumberColumn(
                     "RSI",
                     format="%.1f",
-                    help="Momentum indicator (60-70 is the sweet spot).",
+                    help="Relative Strength Index (0-100): measures recent buying vs. selling pressure. This screener looks for 60-70, a 'strong but not overheated' zone. Above 70 is often called overbought.",
                 ),
                 "volume_ratio": st.column_config.NumberColumn(
                     "Volume",
                     format="%.2fx",
-                    help="Today's volume compared to the 20-day average.",
+                    help="Today's shares traded vs. the normal 20-day average. 2x+ means unusually high interest in the stock today.",
                 ),
                 "pct_above_50": st.column_config.NumberColumn(
                     "Above 50 EMA",
                     format="%+.2f%%",
-                    help="Distance from 50-day average.",
+                    help="How far the price sits above its 50-day trend average. The screener skips anything over 15% above, to avoid chasing a stock that's already run up a lot.",
                 ),
                 "triggers_str": st.column_config.TextColumn(
-                    "Technical triggers", help="The rules the stock passed today."
+                    "Technical triggers", help="The specific rules this stock passed today. Hover a badge in 'Stock analysis' below for a plain-English explanation of each one.",
                 ),
             }
+            st.caption(
+                "💡 Not sure what a column means? Hover over any column header for an "
+                "explanation, or check the **📚 TA Glossary** tab above."
+            )
             st.dataframe(
                 filtered[display_cols],
                 column_config=col_config,
@@ -818,13 +873,22 @@ with tab1:
                     if not filtered.empty
                     else signals_df["ticker"].tolist()
                 ),
+                help="Pick any stock from the filtered list to see its chart, triggers, and entry/exit plan below.",
             )
             period = b.segmented_control(
-                "Chart range", options=["3M", "6M", "1Y"], default="6M"
+                "Chart range",
+                options=["3M", "6M", "1Y"],
+                default="6M",
+                help="How much price history to display in the chart below.",
             )
 
             row = signals_df.loc[signals_df["ticker"] == selected_stock].iloc[0]
             status_class = "good" if row.get("status") == "Trade-Ready" else "warn"
+            status_tooltip = (
+                f"Confirms {TRADE_READY_MIN_SCORE}+ of 6 checks — the strongest setups."
+                if row.get("status") == "Trade-Ready"
+                else f"Confirms {WATCHLIST_MIN_SCORE}-{TRADE_READY_MIN_SCORE-1} of 6 checks — still forming."
+            )
             triggers = row.get("triggers", [])
             trigger_html = "".join(
                 f'<span class="pill" title="{TRIGGER_HELP.get(t, t)}" '
@@ -833,13 +897,14 @@ with tab1:
             )
             st.markdown(
                 f"""<div class="stock-head"><div class="stock-title">{selected_stock}"""
-                f""" <span class="{status_class}" """
-                f"""style="font-size:.8rem;margin-left:.5rem">● {row.get("status","")}</span></div>"""
+                f""" <span class="{status_class}" title="{status_tooltip}" """
+                f"""style="font-size:.8rem;margin-left:.5rem;cursor:help;">● {row.get("status","")}</span></div>"""
                 f"""<div class="stock-meta">₹{row.get("close",0):,.2f} &nbsp; · &nbsp;"""
-                f""" Score {int(row.get("score",0))}/6 &nbsp; · &nbsp; RSI"""
-                f""" {row.get("rsi_14",0):.1f} &nbsp; · &nbsp; Volume"""
-                f""" {row.get("volume_ratio",0):.2f}× &nbsp; · &nbsp;"""
-                f""" {row.get("pct_above_50",0):+.2f}% above 50 EMA</div><div"""
+                f""" <span title="How many of the 6 technical checks this stock passes today." style="cursor:help;">Score"""
+                f""" {int(row.get("score",0))}/6</span> &nbsp; · &nbsp; <span title="Relative Strength Index: momentum gauge 0-100. This screener looks for the 60-70 'strong but not overheated' zone." style="cursor:help;">RSI"""
+                f""" {row.get("rsi_14",0):.1f}</span> &nbsp; · &nbsp; <span title="Today's trading volume vs. the normal 20-day average." style="cursor:help;">Volume"""
+                f""" {row.get("volume_ratio",0):.2f}×</span> &nbsp; · &nbsp;"""
+                f""" <span title="Distance of price above its 50-day trend average." style="cursor:help;">{row.get("pct_above_50",0):+.2f}% above 50 EMA</span></div><div"""
                 f""" style="margin-top:.65rem">{trigger_html}</div></div>""",
                 unsafe_allow_html=True,
             )
@@ -984,17 +1049,35 @@ with tab1:
                     )
 
                     with st.expander("Position-size calculator"):
+                        st.caption(
+                            "Answers 'how many shares should I buy?' based on how much "
+                            "money you're okay losing if the stop-loss is hit — a core "
+                            "risk-management habit, not a return prediction."
+                        )
                         cc1, cc2, cc3 = st.columns(3)
                         capital = cc1.number_input(
-                            "Capital allocated (₹)", min_value=0.0, value=100000.0, step=5000.0
+                            "Capital allocated (₹)",
+                            min_value=0.0,
+                            value=100000.0,
+                            step=5000.0,
+                            help="The total money you're setting aside for this trade idea (not your whole portfolio).",
                         )
                         risk_pct_input = cc2.number_input(
-                            "Risk per trade (%)", min_value=0.1, max_value=100.0, value=1.0, step=0.25
+                            "Risk per trade (%)",
+                            min_value=0.1,
+                            max_value=100.0,
+                            value=1.0,
+                            step=0.25,
+                            help="Common guidance is to risk only 1-2% of capital per trade, so a handful of losses in a row won't hurt badly.",
                         )
                         risk_amount = capital * (risk_pct_input / 100)
                         shares = int(risk_amount // trade_plan["risk_per_share"]) if trade_plan["risk_per_share"] > 0 else 0
                         position_value = shares * trade_plan["entry"]
-                        cc3.metric("Suggested Qty", f"{shares:,} shares")
+                        cc3.metric(
+                            "Suggested Qty",
+                            f"{shares:,} shares",
+                            help="Risk amount ÷ risk-per-share, rounded down. Not a recommendation to buy — just the math for your inputs.",
+                        )
                         st.caption(
                             f"₹{risk_amount:,.0f} at risk (stop hit) · position size ≈ ₹{position_value:,.0f} "
                             f"({(position_value / capital * 100) if capital else 0:.1f}% of allocated capital)."
@@ -1025,6 +1108,11 @@ with tab2:
         unsafe_allow_html=True,
     )
     st.header("Portfolio Health Analyzer")
+    st.caption(
+        "Upload your holdings and this checks each stock against its 200-day trend "
+        "average — a simple, widely-used way to see if a stock is in a long-term "
+        "uptrend or downtrend. Hover any column header below for details."
+    )
 
     st.info(
         "🔒 **Privacy First:** Upload your Groww (or standard broker) Holdings"
@@ -1033,7 +1121,12 @@ with tab2:
     )
 
     uploaded_file = st.file_uploader(
-        "Upload Holdings (CSV or XLSX)", type=["csv", "xlsx"]
+        "Upload Holdings (CSV or XLSX)",
+        type=["csv", "xlsx"],
+        help=(
+            "Export your holdings from your broker app (usually under "
+            "'Portfolio' or 'Holdings' → Export/Download) and upload that file here."
+        ),
     )
 
     if uploaded_file is not None:
@@ -1098,34 +1191,52 @@ with tab2:
             res_df = pd.DataFrame(port_stats)
 
             col_conf = {
-                "Stock": "Stock Name",
+                "Stock": st.column_config.TextColumn(
+                    "Stock Name", help="The name exactly as it appeared in your uploaded file."
+                ),
                 "Matched Symbol": st.column_config.TextColumn(
                     "Ticker",
-                    help="The official NSE symbol resolved via EQUITY_L.csv.",
+                    help="The official NSE trading symbol we matched this holding to, using EQUITY_L.csv. Shows 'Not in Cache' if we couldn't confidently match it.",
                 ),
-                "Quantity": st.column_config.NumberColumn("Qty"),
+                "Quantity": st.column_config.NumberColumn(
+                    "Qty", help="Number of shares you hold, as read from your file."
+                ),
                 "Buy Price": st.column_config.NumberColumn(
-                    "Buy Price", format="₹%.2f"
+                    "Buy Price", format="₹%.2f", help="Your average purchase price per share, as read from your file."
                 ),
-                "LTP": st.column_config.NumberColumn("LTP", format="₹%.2f"),
-                "P&L %": st.column_config.NumberColumn("P&L (%)", format="%+.2f%%"),
-                "Status": "Technical Health",
+                "LTP": st.column_config.NumberColumn(
+                    "LTP", format="₹%.2f", help="Last Traded Price — the most recent closing price we found for this stock."
+                ),
+                "P&L %": st.column_config.NumberColumn(
+                    "P&L (%)",
+                    format="%+.2f%%",
+                    help="Your unrealized profit or loss: (Current Price − Buy Price) ÷ Buy Price. Green is a gain, red is a loss.",
+                ),
+                "Status": st.column_config.TextColumn(
+                    "Technical Health",
+                    help="✅ Healthy Trend = price is above its 200-day average (long-term uptrend). ⚠️ Below 200 EMA = price is below it (long-term downtrend, worth reviewing).",
+                ),
             }
+            st.caption(
+                "🟢 **Healthy Trend** = price above its 200-day average · 🟠 **Below 200 EMA** "
+                "= price below it, historically a weaker long-term trend. Hover any column "
+                "header for details."
+            )
 
             breakdowns = res_df[res_df["Status"] == "⚠️ Below 200 EMA"]
             if not breakdowns.empty:
                 st.error(
-                    f"🚨 **Action Required:** {len(breakdowns)} of your holdings have"
-                    " broken below their 200-day EMA. These are mathematically in a"
-                    " long-term downtrend."
+                    f"🚨 **Worth a look:** {len(breakdowns)} of your holdings are trading"
+                    " below their 200-day average — a simple sign of a long-term"
+                    " downtrend, not a signal to sell."
                 )
                 st.dataframe(
                     breakdowns, column_config=col_conf, hide_index=True, width="stretch"
                 )
             else:
                 st.success(
-                    "✅ Excellent! None of your recognized holdings are trading below"
-                    " their 200-day EMA."
+                    "✅ None of your recognized holdings are trading below"
+                    " their 200-day average — all in long-term uptrends by this measure."
                 )
 
             st.divider()
@@ -1148,12 +1259,23 @@ with tab2:
                     st.dataframe(
                         bullish_held[["ticker", "status", "score", "triggers_str"]],
                         column_config={
-                            "ticker": "Ticker",
-                            "status": "Status",
-                            "score": st.column_config.ProgressColumn(
-                                "Score", min_value=0, max_value=6, format="%d/6"
+                            "ticker": st.column_config.TextColumn(
+                                "Ticker", help="NSE trading symbol."
                             ),
-                            "triggers_str": "Triggers Met",
+                            "status": st.column_config.TextColumn(
+                                "Status",
+                                help=f"Trade-Ready = strongest setup (Score {TRADE_READY_MIN_SCORE}-6). Watchlist = still forming.",
+                            ),
+                            "score": st.column_config.ProgressColumn(
+                                "Score",
+                                min_value=0,
+                                max_value=6,
+                                format="%d/6",
+                                help="How many of the 6 technical checks this stock passes today.",
+                            ),
+                            "triggers_str": st.column_config.TextColumn(
+                                "Triggers Met", help="The specific rules this stock passed today."
+                            ),
                         },
                         hide_index=True,
                         width="stretch",
@@ -1171,6 +1293,7 @@ with tab2:
             
             with c_title:
                 st.subheader("All Parsed Holdings")
+                st.caption("Every row we read from your uploaded file, matched and priced where possible.")
                 
             with c_slider:
                 table_height = st.slider(
@@ -1179,7 +1302,8 @@ with tab2:
                     max_value=900,
                     value=400,
                     step=50,
-                    key="parsed_holdings_height"
+                    key="parsed_holdings_height",
+                    help="Drag to show more or fewer rows without scrolling.",
                 )
             
             # Pass the slider value directly to the height parameter
