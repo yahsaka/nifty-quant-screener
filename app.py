@@ -53,17 +53,7 @@ h1,h2,h3 { letter-spacing:-.025em; }
 .stock-title { font-size:1.35rem; font-weight:750; }
 .stock-meta { color:var(--muted); font-size:.82rem; margin-top:.25rem; }
 .pill { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:.28rem .55rem; margin:.15rem .25rem .15rem 0; color:#cbd5df; font-size:.76rem; }
-
-/* Custom CSS to enable native dragging for the Dataframe height */
-div[data-testid="stDataFrame"] { 
-    border: 1px solid var(--line); 
-    border-radius: 12px; 
-    overflow: auto !important; 
-    resize: vertical; 
-    max-height: 800px; 
-    min-height: 200px; 
-}
-
+div[data-testid="stDataFrame"] { border:1px solid var(--line); border-radius:12px; overflow:hidden; }
 .stTabs [data-baseweb="tab-list"] { gap:1.5rem; border-bottom:1px solid var(--line); }
 .stTabs [data-baseweb="tab"] { padding:.65rem 0; background:transparent; }
 .stTabs [aria-selected="true"] { color:var(--green)!important; }
@@ -857,14 +847,29 @@ with tab2:
 
             st.divider()
 
-            st.subheader("All Parsed Holdings")
-            st.caption("💡 *Tip: Click and drag the bottom boundary or corner of the table to resize.*")
+            # Align the title and slider side-by-side
+            c_title, c_slider = st.columns([3, 1])
             
+            with c_title:
+                st.subheader("All Parsed Holdings")
+                
+            with c_slider:
+                table_height = st.slider(
+                    "Table Height (px)",
+                    min_value=300,
+                    max_value=900,
+                    value=400,
+                    step=50,
+                    key="parsed_holdings_height"
+                )
+            
+            # Pass the slider value directly to the height parameter
             st.dataframe(
                 res_df, 
                 column_config=col_conf, 
                 hide_index=True, 
-                width="stretch"
+                width="stretch",
+                height=table_height
             )
 
 # ==========================================
