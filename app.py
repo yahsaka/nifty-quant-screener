@@ -106,17 +106,46 @@ def load_stock_ohlcv(ticker: str):
 
 
 @st.cache_data
-def load_equity_master():
-    """Loads the official NSE EQUITY_L.csv file for exact symbol resolution."""
-    if os.path.exists(EQUITY_CSV):
+def load_equity_master(filepath=EQUITY_CSV):
+    """
+    Loads the NSE equity master list safely with encoding fallback 
+    and validates required columns and row count.
+    """
+    if not os.path.exists(filepath):
+        st.warning(f"Warning: {filepath} not found. Name matching may fall back to ticker guessing.")
+        return None
+
+    df = None
+    # 1. Attempt loading with UTF-8, fall back to latin-1 on decode errors
+    try:
+        df = pd.read_csv(filepath, encoding='utf-8')
+    except UnicodeDecodeError:
         try:
-            df = pd.read_csv(EQUITY_CSV)
-            df.columns = [c.strip().upper() for c in df.columns]
-            if "SYMBOL" in df.columns and "NAME OF COMPANY" in df.columns:
-                return df
-        except Exception:
-            pass
-    return None
+            df = pd.read_csv(filepath, encoding='latin-1')
+        except Exception as e:
+            st.error(f"Error loading {filepath} with latin-1: {e}")
+            return None
+    except Exception as e:
+        st.error(f"Error reading {filepath}: {e}")
+        return None
+
+    if df is None or df.empty:
+        return None
+
+    # 2. Clean and uppercase column headers to prevent matching issues due to spacing/case
+    df.columns = [str(col).strip().upper() for col in df.columns]
+
+    # 3. Validation checks
+    required_cols = {"SYMBOL", "NAME OF COMPANY"}
+    if not required_cols.issubset(df.columns):
+        st.error(f"Error: Missing required columns in {filepath}. Found: {list(df.columns)}")
+        return None
+
+    # Optional sanity check assertion for row count (Full NSE equity list is typically 2000+)
+    if len(df) < 1000:
+        st.warning(f"Warning: Equity master row count ({len(df)}) is lower than expected for a full NSE list.")
+
+    return df
 
 
 def find_cached_ticker(company_name, cache_dir):
