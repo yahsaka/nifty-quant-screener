@@ -11,7 +11,13 @@ import requests
 import yfinance as yf
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-CACHE_DIR = "data/ohlcv_cache"
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+CACHE_DIR = os.getenv("CACHE_DIR", "data/ohlcv_cache")
 LOGGER = logging.getLogger(__name__)
 
 
