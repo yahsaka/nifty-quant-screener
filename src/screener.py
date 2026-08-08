@@ -11,6 +11,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import yfinance as yf
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from indicators import calculate_indicators
 
@@ -34,6 +35,15 @@ def _finite(value: object) -> Optional[float]:
     return number if np.isfinite(number) else None
 
 
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10), reraise=True)
+def fetch_nifty_index(period: str) -> pd.DataFrame:
+    """Fetches Nifty 50 data with exponential backoff for transient failures."""
+    df = yf.download("^NSEI", period=period, progress=False)
+    if df.empty:
+        raise ValueError("Nifty 50 data returned empty.")
+    return df
+
+
 def get_market_regime(period: str = "2y") -> str:
     """Return Bullish, Bearish, or Unknown using 200 EMA/three-session rule.
 
@@ -41,10 +51,10 @@ def get_market_regime(period: str = "2y") -> str:
     A failed or insufficient download is deliberately Unknown, never Bullish.
     """
     try:
-        nifty = yf.download("^NSEI", period=period, progress=False)
+        nifty = fetch_nifty_index(period)
         if isinstance(nifty.columns, pd.MultiIndex):
             nifty.columns = nifty.columns.get_level_values(0)
-        if nifty.empty or "Close" not in nifty or len(nifty) < 203:
+        if "Close" not in nifty or len(nifty) < 203:
             LOGGER.warning("Nifty data is unavailable or too short for the 200 EMA rule.")
             return UNKNOWN
 
