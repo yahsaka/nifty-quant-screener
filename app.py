@@ -846,9 +846,29 @@ with tab2:
 
             st.divider()
 
-            st.subheader("All Parsed Holdings")
+            # Create columns for the header and the slider
+            c_title, c_slider = st.columns([3, 1])
+            
+            with c_title:
+                st.subheader("All Parsed Holdings")
+                
+            with c_slider:
+                # Slider for dynamic table height
+                table_height = st.slider(
+                    "Table Height (px)",
+                    min_value=200,
+                    max_value=800,
+                    value=400,
+                    step=50,
+                    key="parsed_holdings_height"
+                )
+
             st.dataframe(
-                res_df, column_config=col_conf, hide_index=True, width="stretch"
+                res_df, 
+                column_config=col_conf, 
+                hide_index=True, 
+                width="stretch",
+                height=table_height
             )
 
 # ==========================================
