@@ -182,10 +182,18 @@ def run_screener() -> None:
     results: list[dict] = []
     failures: list[dict] = []
     successful_scans = 0
+    max_data_date: Optional[str] = None
+
     for filename in cache_files:
         ticker = filename.removesuffix(".parquet")
         try:
             dataframe = pd.read_parquet(os.path.join(CACHE_DIR, filename))
+            if not dataframe.empty:
+                last_dt = dataframe.index[-1]
+                dt_str = str(last_dt.date() if hasattr(last_dt, "date") else last_dt)
+                if max_data_date is None or dt_str > max_data_date:
+                    max_data_date = dt_str
+
             signal = evaluate_signals(ticker, dataframe, market_regime)
             successful_scans += 1
             if signal:
@@ -197,8 +205,15 @@ def run_screener() -> None:
 
     results.sort(key=lambda item: (item["score"], item.get("volume_ratio") or 0), reverse=True)
     ist = timezone(timedelta(hours=5, minutes=30))
+
+    # Derive updated_at from actual data candle date to avoid phantom holiday commits
+    if max_data_date:
+        updated_at_str = f"{max_data_date}T15:30:00+05:30"
+    else:
+        updated_at_str = datetime.now(ist).isoformat()
+
     output_data = {
-        "updated_at": datetime.now(ist).isoformat(),
+        "updated_at": updated_at_str,
         "market_regime": market_regime,
         "universe_size": len(cache_files),
         "total_scanned": successful_scans,
