@@ -2,7 +2,7 @@ name: Daily Nifty Quant Screener
 
 on:
   schedule:
-    - cron: "30 10 * * 1-5" # 4:00 PM IST, after the regular NSE close
+    - cron: "30 11 * * 1-5" # 5:00 PM IST, after the regular NSE close and data settlement
   workflow_dispatch:
 
 permissions:
@@ -16,8 +16,10 @@ concurrency:
 jobs:
   run-screener:
     runs-on: ubuntu-latest
-    # First run may need longer to build the initial 500-stock cache.
-    timeout-minutes: 330
+    
+    # Dynamic timeout: 45 mins for scheduled runs, 330 mins for manual full rebuilds
+    timeout-minutes: ${{ github.event_name == 'schedule' && 45 || 330 }}
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -72,13 +74,24 @@ jobs:
               raise SystemExit("Screener reported failed ticker evaluations.")
           PY
 
+      - name: Execute Paper Trades
+        run: python src/paper_trader.py
+
       - name: Commit and push results
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
           git add data/latest_screener_results.json
+          
+          # Stage the paper trades ledger if it exists
+          if [ -f data/paper_trades.json ]; then
+            git add data/paper_trades.json
+          fi
+          
           # The current NSE constituent list is intentionally retained as the
           # offline fallback, even though broker CSV uploads are ignored.
           git add -f data/nifty500_tickers.csv
+          
           git diff --staged --quiet || git commit -m "Automated daily scan update: $(date +'%Y-%m-%d')"
           git push
