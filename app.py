@@ -61,7 +61,6 @@ TRIGGER_CLAUSE = {
     "MACD_BULLISH_CROSS": "showing a fresh bullish momentum shift",
 }
 
-
 def build_summary_sentence(ticker: str, triggers: list, status: str) -> str:
     """Turn raw trigger codes into one plain-English sentence for non-expert users."""
     clauses = [TRIGGER_CLAUSE.get(t, t) for t in triggers]
@@ -77,6 +76,29 @@ def build_summary_sentence(ticker: str, triggers: list, status: str) -> str:
         else "an early-stage Watchlist setup"
     )
     return f"{ticker} is {clause_text} today — {verdict} ({len(triggers)}/6 signals)."
+
+# --- PAPER TRADING HELPERS ---
+PAPER_TRADES_FILE = "data/paper_trades.json"
+
+def load_paper_trades():
+    if os.path.exists(PAPER_TRADES_FILE):
+        try:
+            with open(PAPER_TRADES_FILE, "r") as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            return []
+    return []
+
+def add_paper_trade(new_trade):
+    trades = load_paper_trades()
+    # Prevent exact duplicates
+    if any(t["trade_id"] == new_trade["trade_id"] for t in trades):
+        return False
+    trades.append(new_trade)
+    os.makedirs(os.path.dirname(PAPER_TRADES_FILE), exist_ok=True)
+    with open(PAPER_TRADES_FILE, "w") as f:
+        json.dump(trades, f, indent=2)
+    return True
 
 st.markdown(
     """
@@ -722,7 +744,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-tab1, tab2, tab3 = st.tabs(["Screener", "Portfolio Health", "📚 TA Glossary"])
+tab1, tab2, tab3, tab4 = st.tabs(["Screener", "Portfolio Health", "📝 Paper Trading", "📚 TA Glossary"])
 
 # ==========================================
 # TAB 1: SCREENER
@@ -1196,6 +1218,33 @@ your own research before trading.
                             f"₹{risk_amount:,.0f} at risk (stop hit) · position size ≈ ₹{position_value:,.0f} "
                             f"({(position_value / capital * 100) if capital else 0:.1f}% of allocated capital)."
                         )
+                        
+                    # --- NEW FORWARD TESTING UI INTEGRATION ---
+                    st.markdown('<div class="section-kicker" style="margin-top: 1.5rem;">Forward Testing</div>', unsafe_allow_html=True)
+                    with st.form(key=f"paper_trade_{selected_stock}"):
+                        st.write(f"Log a virtual trade for **{selected_stock}** based on this mechanical plan.")
+                        qty_input = st.number_input("Shares to track", min_value=1, value=shares if shares > 0 else 10, help="Adjust based on your position-size calculation.")
+                        
+                        if st.form_submit_button("Add to Paper Portfolio"):
+                            trade_record = {
+                                "trade_id": f"{selected_stock}-{trade_plan['reference_date'].strftime('%Y%m%d')}",
+                                "ticker": selected_stock,
+                                "entry_date": trade_plan['reference_date'].strftime('%Y-%m-%d'),
+                                "entry_price": float(trade_plan['entry']),
+                                "qty": int(qty_input),
+                                "stop_price": float(trade_plan['stop']),
+                                "exit_target_date": trade_plan['exit_by_date'].strftime('%Y-%m-%d'),
+                                "status": "OPEN",
+                                "exit_date": None,
+                                "exit_price": None,
+                                "exit_reason": None,
+                                "realized_pnl_pct": None
+                            }
+                            if add_paper_trade(trade_record):
+                                st.success(f"✅ Successfully logged {qty_input} shares of {selected_stock}!")
+                            else:
+                                st.warning("This specific setup is already logged in your Paper Portfolio.")
+
             else:
                 st.info(f"No OHLCV cache found for {selected_stock}.")
         else:
@@ -1418,9 +1467,87 @@ with tab2:
             )
 
 # ==========================================
-# TAB 3: TA GLOSSARY (Educational)
+# TAB 3: PAPER TRADING
 # ==========================================
 with tab3:
+    st.markdown('<div class="section-kicker">Forward Testing</div>', unsafe_allow_html=True)
+    st.header("Paper Trading Ledger")
+    st.caption("Monitor your live forward-test. Open trades are evaluated daily by the automated execution script.")
+    
+    trades = load_paper_trades()
+    open_trades = [t for t in trades if t["status"] == "OPEN"]
+    closed_trades = [t for t in trades if t["status"] == "CLOSED"]
+    
+    # --- ACTIVE TRADES ---
+    st.subheader("📈 Active Positions")
+    if not open_trades:
+        st.info("No active paper trades. Log a setup from the Screener tab to start testing.")
+    else:
+        active_data = []
+        for t in open_trades:
+            # Fetch latest price from cache for live P&L
+            ohlcv = load_stock_ohlcv(t["ticker"])
+            current_price = float(ohlcv["Close"].iloc[-1]) if (ohlcv is not None and not ohlcv.empty) else t["entry_price"]
+            unrealized_pnl = ((current_price / t["entry_price"]) - 1) * 100
+            
+            active_data.append({
+                "Ticker": t["ticker"],
+                "Entry Date": t["entry_date"],
+                "Entry Price": t["entry_price"],
+                "Current Price": current_price,
+                "Unrealized P&L": unrealized_pnl,
+                "Stop Loss": t["stop_price"],
+                "Exit Target": t["exit_target_date"]
+            })
+            
+        active_df = pd.DataFrame(active_data)
+        st.dataframe(
+            active_df,
+            column_config={
+                "Entry Price": st.column_config.NumberColumn(format="₹%.2f"),
+                "Current Price": st.column_config.NumberColumn(format="₹%.2f"),
+                "Stop Loss": st.column_config.NumberColumn(format="₹%.2f"),
+                "Unrealized P&L": st.column_config.NumberColumn(format="%+.2f%%")
+            },
+            hide_index=True,
+            width="stretch"
+        )
+        
+    st.divider()
+    
+    # --- CLOSED TRADES (PERFORMANCE) ---
+    st.subheader("📊 Historical Performance")
+    if not closed_trades:
+        st.info("No closed trades yet. The daily execution script will automatically close trades here when rules are hit.")
+    else:
+        closed_df = pd.DataFrame(closed_trades)
+        
+        # Calculate summary metrics
+        wins = closed_df[closed_df["realized_pnl_pct"] > 0]
+        win_rate = (len(wins) / len(closed_df)) * 100
+        avg_return = closed_df["realized_pnl_pct"].mean()
+        
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Win Rate", f"{win_rate:.1f}%", help="Percentage of trades closed with a profit.")
+        c2.metric("Average Return", f"{avg_return:+.2f}%", help="Average return across all closed trades (includes slippage & costs).")
+        c3.metric("Total Trades", len(closed_df))
+        
+        display_closed = closed_df[["ticker", "entry_date", "exit_date", "exit_reason", "realized_pnl_pct"]]
+        display_closed = display_closed.rename(columns={"ticker": "Ticker", "entry_date": "Entry", "exit_date": "Exit", "exit_reason": "Reason", "realized_pnl_pct": "Realized P&L"})
+        
+        st.dataframe(
+            display_closed,
+            column_config={
+                "Realized P&L": st.column_config.NumberColumn(format="%+.2f%%")
+            },
+            hide_index=True,
+            width="stretch"
+        )
+
+# ==========================================
+# TAB 4: TA GLOSSARY (Educational)
+# ==========================================
+with tab4:
     st.markdown(
         '<div class="section-kicker">Educational Reference</div>',
         unsafe_allow_html=True,
