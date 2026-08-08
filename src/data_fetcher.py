@@ -80,8 +80,14 @@ def load_tickers() -> list[str]:
         )
         response.raise_for_status()
         nifty = pd.read_csv(StringIO(response.text))
+        
         if "Symbol" not in nifty.columns:
             raise ValueError("NSE list did not contain a Symbol column")
+            
+        # Validate row count to protect against truncated or empty responses
+        if len(nifty) < 400:
+            raise ValueError(f"Truncated NSE response: received only {len(nifty)} rows (expected >= 400)")
+            
         nifty.to_csv(ticker_file, index=False)
         return nifty["Symbol"].dropna().astype(str).tolist()
     except Exception as exc:
