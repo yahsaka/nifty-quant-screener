@@ -13,14 +13,25 @@ import pandas as pd
 import yfinance as yf
 from tenacity import retry, stop_after_attempt, wait_exponential
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from indicators import calculate_indicators
 
 warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 LOGGER = logging.getLogger(__name__)
 
-CACHE_DIR = "data/ohlcv_cache"
-OUTPUT_FILE = "data/latest_screener_results.json"
+CACHE_DIR = os.getenv("CACHE_DIR", "data/ohlcv_cache")
+OUTPUT_FILE = os.getenv("SCREENER_JSON_PATH", "data/latest_screener_results.json")
+
+WATCHLIST_MIN_SCORE = int(os.getenv("SCREENER_WATCHLIST_MIN_SCORE", "3"))
+TRADE_READY_MIN_SCORE = int(os.getenv("SCREENER_TRADE_READY_MIN_SCORE", "5"))
+MAX_PCT_ABOVE_50EMA = float(os.getenv("SCREENER_MAX_PCT_ABOVE_50EMA", "0.15"))
+
 BULLISH = "Bullish"
 BEARISH = "Bearish"
 UNKNOWN = "Unknown"
@@ -74,8 +85,8 @@ def evaluate_setup(
     """Evaluate the canonical six-point screener rules for one historical row.
 
     The same function is used by the live screener and the backtest.  It returns
-    every valid, eligible score (including scores below 3); callers decide which
-    score thresholds to display or simulate.
+    every valid, eligible score (including scores below WATCHLIST_MIN_SCORE); callers 
+    decide which score thresholds to display or simulate.
     """
     if idx < 1 or idx >= len(df) or market_regime != BULLISH:
         return None
@@ -97,7 +108,7 @@ def evaluate_setup(
     if ema_50 is None or ema_200 is None:
         return None
     pct_above_50 = (close - ema_50) / ema_50 if ema_50 != 0 else None
-    if pct_above_50 is None or pct_above_50 > 0.15:
+    if pct_above_50 is None or pct_above_50 > MAX_PCT_ABOVE_50EMA:
         return None
 
     triggers: list[str] = []
@@ -129,7 +140,7 @@ def evaluate_setup(
                 triggers.append("MACD_BULLISH_CROSS")
 
     score = len(triggers)
-    status = "Trade-Ready" if score >= 5 else "Watchlist" if score >= 3 else "No setup"
+    status = "Trade-Ready" if score >= TRADE_READY_MIN_SCORE else "Watchlist" if score >= WATCHLIST_MIN_SCORE else "No setup"
     last_date = latest.name.date() if hasattr(latest.name, "date") else latest.name
     return {
         "ticker": ticker,
@@ -148,12 +159,12 @@ def evaluate_setup(
 
 
 def evaluate_signals(ticker: str, df: pd.DataFrame, market_regime: str) -> Optional[dict]:
-    """Evaluate the latest row and return only displayable (score >= 3) setups."""
+    """Evaluate the latest row and return only displayable setups."""
     if df.empty or len(df) < 201:
         return None
     indicators = calculate_indicators(df.copy())
     setup = evaluate_setup(indicators, len(indicators) - 1, market_regime, ticker)
-    return setup if setup and setup["score"] >= 3 else None
+    return setup if setup and setup["score"] >= WATCHLIST_MIN_SCORE else None
 
 
 def run_screener() -> None:
