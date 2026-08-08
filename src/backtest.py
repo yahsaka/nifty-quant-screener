@@ -12,20 +12,25 @@ import pandas_ta as ta
 import yfinance as yf
 from tenacity import retry, stop_after_attempt, wait_exponential
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from indicators import calculate_indicators
-from screener import BEARISH, BULLISH, UNKNOWN, evaluate_setup
+from screener import BEARISH, BULLISH, UNKNOWN, evaluate_setup, WATCHLIST_MIN_SCORE
 
 warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 LOGGER = logging.getLogger(__name__)
 
-CACHE_DIR = "data/ohlcv_cache"
-HOLD_DAYS = 20
-ATR_MULTIPLIER = 2.0
-# Conservative, configurable assumptions for a cash-equity swing trade.
-ENTRY_SLIPPAGE_BPS = 5
-EXIT_SLIPPAGE_BPS = 5
-ROUND_TRIP_COST_BPS = 20
+CACHE_DIR = os.getenv("CACHE_DIR", "data/ohlcv_cache")
+HOLD_DAYS = int(os.getenv("BACKTEST_HOLD_DAYS", "20"))
+ATR_MULTIPLIER = float(os.getenv("BACKTEST_ATR_MULTIPLIER", "2.0"))
+ENTRY_SLIPPAGE_BPS = int(os.getenv("BACKTEST_ENTRY_SLIPPAGE_BPS", "5"))
+EXIT_SLIPPAGE_BPS = int(os.getenv("BACKTEST_EXIT_SLIPPAGE_BPS", "5"))
+ROUND_TRIP_COST_BPS = int(os.getenv("BACKTEST_ROUND_TRIP_COST_BPS", "20"))
 
 
 def _finite(value: object) -> Optional[float]:
@@ -114,7 +119,7 @@ def _execute_trade(df: pd.DataFrame, signal_idx: int, atr: float) -> Optional[di
 
 
 def extract_historical_signals(ticker: str, df: pd.DataFrame, market_regimes: dict) -> list[dict]:
-    """Backtest score >=3 exactly as the live screener scores it on each date."""
+    """Backtest based on configured minimum score thresholds."""
     if df.empty or len(df) < 221:
         return []
     indicators = calculate_indicators(df.copy())
@@ -125,7 +130,7 @@ def extract_historical_signals(ticker: str, df: pd.DataFrame, market_regimes: di
     for idx in range(1, len(indicators) - HOLD_DAYS):
         date = indicators.index[idx].date()
         setup = evaluate_setup(indicators, idx, market_regimes.get(date, UNKNOWN), ticker)
-        if not setup or setup["score"] < 3:
+        if not setup or setup["score"] < WATCHLIST_MIN_SCORE:
             continue
         atr = _finite(indicators["ATR_14"].iloc[idx])
         if atr is None:
@@ -170,8 +175,8 @@ def _summary(results: pd.DataFrame) -> pd.DataFrame:
 
 def run_backtest() -> None:
     LOGGER.info(
-        "Backtest: score >=3 | next-day open | %s-session hold | %.1fx ATR stop | entry/exit slippage %s/%s bps | costs %s bps",
-        HOLD_DAYS, ATR_MULTIPLIER, ENTRY_SLIPPAGE_BPS, EXIT_SLIPPAGE_BPS, ROUND_TRIP_COST_BPS,
+        "Backtest: score >=%s | next-day open | %s-session hold | %.1fx ATR stop | entry/exit slippage %s/%s bps | costs %s bps",
+        WATCHLIST_MIN_SCORE, HOLD_DAYS, ATR_MULTIPLIER, ENTRY_SLIPPAGE_BPS, EXIT_SLIPPAGE_BPS, ROUND_TRIP_COST_BPS,
     )
     if not os.path.exists(CACHE_DIR):
         LOGGER.error("No cache directory found.")
@@ -198,7 +203,7 @@ def run_backtest() -> None:
         LOGGER.info("Failed tickers: %s", ", ".join(failures))
     results = pd.DataFrame(all_signals)
     if results.empty:
-        LOGGER.warning("No qualifying score >=3 signals found.")
+        LOGGER.warning("No qualifying signals found.")
         return
     print("\nSIX-POINT SCREENER BACKTEST RESULTS")
     print(_summary(results).to_markdown(index=False))
