@@ -53,7 +53,17 @@ h1,h2,h3 { letter-spacing:-.025em; }
 .stock-title { font-size:1.35rem; font-weight:750; }
 .stock-meta { color:var(--muted); font-size:.82rem; margin-top:.25rem; }
 .pill { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:.28rem .55rem; margin:.15rem .25rem .15rem 0; color:#cbd5df; font-size:.76rem; }
-div[data-testid="stDataFrame"] { border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+
+/* Custom CSS to enable native dragging for the Dataframe height */
+div[data-testid="stDataFrame"] { 
+    border: 1px solid var(--line); 
+    border-radius: 12px; 
+    overflow: auto !important; 
+    resize: vertical; 
+    max-height: 800px; 
+    min-height: 200px; 
+}
+
 .stTabs [data-baseweb="tab-list"] { gap:1.5rem; border-bottom:1px solid var(--line); }
 .stTabs [data-baseweb="tab"] { padding:.65rem 0; background:transparent; }
 .stTabs [aria-selected="true"] { color:var(--green)!important; }
@@ -63,7 +73,6 @@ div[data-baseweb="select"] > div { background:#111821; border-color:var(--line);
 .glossary-def { color:var(--text); font-size:0.95rem; line-height:1.5; margin-bottom:1.5rem; }
 .glossary-def ul { margin-top: 0.3rem; margin-bottom: 0.3rem; }
 .glossary-def li { margin-bottom: 0.3rem; }
-/* .legacy-execution-guide { display:none !important; } */
 </style>
 """,
     unsafe_allow_html=True,
@@ -559,13 +568,6 @@ with tab1:
                 days = {"3M": 90, "6M": 180, "1Y": 365}.get(period, 180)
                 chart_df = ohlcv_df.tail(days)
 
-                latest_close = float(chart_df["Close"].squeeze().iloc[-1])
-                latest_low = float(chart_df["Low"].squeeze().iloc[-1])
-                latest_ema50 = float(chart_df["EMA_50"].squeeze().iloc[-1])
-                latest_ema200 = float(chart_df["EMA_200"].squeeze().iloc[-1])
-                swing_low = float(chart_df["Low"].tail(10).min())
-                target_10 = latest_close * 1.10
-
                 fig = go.Figure()
                 fig.add_trace(
                     go.Candlestick(
@@ -623,74 +625,6 @@ with tab1:
                     "use a 2 × ATR stop (with gap-through stops filled at the open); "
                     "otherwise exit at the close of the 20th holding session. "
                     "Backtest assumptions include configurable slippage and transaction costs."
-                )
-                
-                st.markdown(
-                    f"""
-<div class="legacy-execution-guide" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; margin-top: 1rem;">
-    <!-- Card 1: Entry -->
-    <div class="card" style="min-height: auto; border-top: 3px solid var(--green); display: flex; flex-direction: column;">
-        <div class="card-label" style="color:var(--green); display:flex; align-items:center; gap:0.4rem;">
-            <span style="font-size:1rem;">🎯</span> 1. SUGGESTED ENTRY ZONE
-        </div>
-        <div class="card-note" style="margin-top:0.8rem; line-height:1.5; flex-grow:1;">
-            Wait for the next trading session's open. The ideal accumulation zone is between a slight pullback and major support.
-        </div>
-        <div style="margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--line);">
-            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 0.3rem;">
-                <span style="font-size:0.85rem; color:var(--muted);">Aggressive (-3% dip)</span>
-                <span style="font-size:1.1rem; color:var(--text); font-weight:600;">₹{latest_close * 0.97:,.2f}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-                <span style="font-size:0.85rem; color:var(--muted);">Conservative (200 EMA)</span>
-                <span style="font-size:1.1rem; color:var(--text); font-weight:600;">₹{latest_ema200:,.2f}</span>
-            </div>
-        </div>
-    </div>
-    <!-- Card 2: Stops -->
-    <div class="card" style="min-height: auto; border-top: 3px solid var(--red); display: flex; flex-direction: column;">
-        <div class="card-label" style="color:var(--red); display:flex; align-items:center; gap:0.4rem;">
-            <span style="font-size:1rem;">🛑</span> 2. STRUCTURAL STOP-LOSSES
-        </div>
-        <div class="card-note" style="margin-top:0.8rem; line-height:1.5; flex-grow:1;">
-            Consider these logical structural levels (calculated at a 1% buffer below support) to invalidate the setup.
-        </div>
-        <div style="margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--line);">
-            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 0.3rem;">
-                <span style="font-size:0.85rem; color:var(--muted);">Below 50 EMA</span>
-                <span style="color:var(--text); font-weight:600;">₹{latest_ema50 * 0.99:,.2f}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 0.3rem;">
-                <span style="font-size:0.85rem; color:var(--muted);">Breakout Bottom</span>
-                <span style="color:var(--text); font-weight:600;">₹{latest_low * 0.99:,.2f}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-                <span style="font-size:0.85rem; color:var(--muted);">Recent Swing Low</span>
-                <span style="color:var(--text); font-weight:600;">₹{swing_low * 0.99:,.2f}</span>
-            </div>
-        </div>
-    </div>
-    <!-- Card 3: Targets -->
-    <div class="card" style="min-height: auto; border-top: 3px solid var(--amber); display: flex; flex-direction: column;">
-        <div class="card-label" style="color:var(--amber); display:flex; align-items:center; gap:0.4rem;">
-            <span style="font-size:1rem;">⏳</span> 3. TRADE MANAGEMENT
-        </div>
-        <div class="card-note" style="margin-top:0.8rem; line-height:1.5; flex-grow:1;">
-            For discretionary swing trading, secure partial profits into strength rather than holding strictly for time.
-        </div>
-        <div style="margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--line); padding-bottom: 0.3rem;">
-            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 0.4rem;">
-                <span style="font-size:0.85rem; color:var(--muted);">Take Profit (+10%)</span>
-                <span style="font-size:1.15rem; color:var(--green); font-weight:700;">₹{target_10:,.2f}</span>
-            </div>
-            <span style="font-size:0.8rem; color:var(--muted); line-height: 1.4; display:block;">
-                <b>Rule:</b> Sell 50% of the position at the target, then immediately move the stop-loss on the remainder to your entry price.
-            </span>
-        </div>
-    </div>
-</div>
-""",
-                    unsafe_allow_html=True,
                 )
             else:
                 st.info(f"No OHLCV cache found for {selected_stock}.")
