@@ -2,6 +2,7 @@ import os
 import re
 import json
 import pandas as pd
+import pandas_ta as ta
 import streamlit as st
 import plotly.graph_objects as go
 from datetime import datetime
@@ -568,6 +569,51 @@ def parse_broker_file(file_obj):
         return None, str(e)
 
 
+def compute_trade_plan(ohlcv_df: pd.DataFrame, atr_multiplier: float, hold_days: int):
+    """Derive a mechanical entry/exit plan from the SAME rules used in backtest.py.
+
+    Returns None if there isn't enough history for a 14-period ATR. This never
+    predicts price or issues a recommendation - it is a deterministic function
+    of (last close, ATR-14, ATR_MULTIPLIER, HOLD_DAYS), all already disclosed
+    in the Trade Execution Guide / README.
+    """
+    if ohlcv_df is None or ohlcv_df.empty or len(ohlcv_df) < 15:
+        return None
+
+    atr_series = ta.atr(ohlcv_df["High"], ohlcv_df["Low"], ohlcv_df["Close"], length=14)
+    if atr_series is None or atr_series.dropna().empty:
+        return None
+
+    last_close = float(ohlcv_df["Close"].iloc[-1])
+    atr_val = float(atr_series.iloc[-1])
+    if not (last_close > 0) or not (atr_val > 0):
+        return None
+
+    stop_price = last_close - atr_multiplier * atr_val
+    if stop_price <= 0:
+        return None
+
+    risk_per_share = last_close - stop_price
+    risk_pct = (risk_per_share / last_close) * 100
+
+    last_date = ohlcv_df.index[-1]
+    if not isinstance(last_date, pd.Timestamp):
+        last_date = pd.Timestamp(last_date)
+    # Approximate: counts business days only, does not account for market holidays.
+    future_sessions = pd.bdate_range(start=last_date + pd.Timedelta(days=1), periods=hold_days)
+    exit_by_date = future_sessions[-1] if len(future_sessions) else None
+
+    return {
+        "reference_date": last_date,
+        "entry": last_close,
+        "atr": atr_val,
+        "stop": stop_price,
+        "risk_per_share": risk_per_share,
+        "risk_pct": risk_pct,
+        "exit_by_date": exit_by_date,
+    }
+
+
 def metric_card(label, value, note="", state="", tooltip=""):
     state_html = f'<span class="dot"></span>' if state else ""
     tooltip_attr = f' title="{tooltip}" style="cursor:help;"' if tooltip else ""
@@ -839,6 +885,24 @@ with tab1:
                         line=dict(color="#6aa9ff", width=1.6),
                     )
                 )
+                trade_plan = compute_trade_plan(ohlcv_df, ATR_MULTIPLIER, HOLD_DAYS)
+
+                if trade_plan:
+                    fig.add_hline(
+                        y=trade_plan["stop"],
+                        line=dict(color="#ff6672", width=1.2, dash="dash"),
+                        annotation_text="Model stop",
+                        annotation_position="bottom right",
+                        annotation_font_color="#ff6672",
+                    )
+                    fig.add_hline(
+                        y=trade_plan["entry"],
+                        line=dict(color="#73aaff", width=1, dash="dot"),
+                        annotation_text="Reference entry",
+                        annotation_position="top right",
+                        annotation_font_color="#73aaff",
+                    )
+
                 fig.update_layout(
                     height=560,
                     margin=dict(l=10, r=10, t=20, b=10),
@@ -854,6 +918,87 @@ with tab1:
                 st.plotly_chart(
                     fig, width="stretch", config={"displayModeBar": False}
                 )
+
+                st.markdown(
+                    '<div class="section-kicker" style="margin-top:'
+                    ' 1.5rem;">Entry &amp; Exit Plan</div>',
+                    unsafe_allow_html=True,
+                )
+
+                if not trade_plan:
+                    st.info(
+                        "Not enough cached history to compute a 14-period ATR for"
+                        f" {selected_stock}, so no entry/exit plan is shown."
+                    )
+                else:
+                    st.caption(
+                        f"Mechanically derived from the {selected_stock} cache as of "
+                        f"{trade_plan['reference_date'].strftime('%d %b %Y')} using the same "
+                        f"rules tested in backtest.py — not a recommendation to trade."
+                    )
+                    p1, p2, p3, p4 = st.columns(4)
+                    p1.markdown(
+                        metric_card(
+                            "Reference Entry",
+                            f"₹{trade_plan['entry']:,.2f}",
+                            "Last close · tested model enters at the next session's open.",
+                            "",
+                            "The backtest enters at tomorrow's open, which isn't known yet — this is the closest available reference.",
+                        ),
+                        unsafe_allow_html=True,
+                    )
+                    p2.markdown(
+                        metric_card(
+                            "Model Stop-Loss",
+                            f"₹{trade_plan['stop']:,.2f}",
+                            f"{ATR_MULTIPLIER}× ATR(14) = ₹{trade_plan['atr']:.2f} below entry",
+                            "bad",
+                            "Gap-through opens are filled at the weaker opening price in the backtest, not this exact level.",
+                        ),
+                        unsafe_allow_html=True,
+                    )
+                    p3.markdown(
+                        metric_card(
+                            "Risk / Share",
+                            f"₹{trade_plan['risk_per_share']:,.2f}",
+                            f"{trade_plan['risk_pct']:.2f}% of entry price",
+                            "warn",
+                            "Distance from reference entry to the model stop-loss.",
+                        ),
+                        unsafe_allow_html=True,
+                    )
+                    exit_label = (
+                        trade_plan["exit_by_date"].strftime("%d %b %Y")
+                        if trade_plan["exit_by_date"] is not None
+                        else "N/A"
+                    )
+                    p4.markdown(
+                        metric_card(
+                            "Time-Exit By",
+                            exit_label,
+                            f"If the stop isn't hit within {HOLD_DAYS} sessions (approx., excludes holidays)",
+                            "",
+                            "The tested model force-exits at the close of the Nth holding session.",
+                        ),
+                        unsafe_allow_html=True,
+                    )
+
+                    with st.expander("Position-size calculator"):
+                        cc1, cc2, cc3 = st.columns(3)
+                        capital = cc1.number_input(
+                            "Capital allocated (₹)", min_value=0.0, value=100000.0, step=5000.0
+                        )
+                        risk_pct_input = cc2.number_input(
+                            "Risk per trade (%)", min_value=0.1, max_value=100.0, value=1.0, step=0.25
+                        )
+                        risk_amount = capital * (risk_pct_input / 100)
+                        shares = int(risk_amount // trade_plan["risk_per_share"]) if trade_plan["risk_per_share"] > 0 else 0
+                        position_value = shares * trade_plan["entry"]
+                        cc3.metric("Suggested Qty", f"{shares:,} shares")
+                        st.caption(
+                            f"₹{risk_amount:,.0f} at risk (stop hit) · position size ≈ ₹{position_value:,.0f} "
+                            f"({(position_value / capital * 100) if capital else 0:.1f}% of allocated capital)."
+                        )
 
                 st.markdown(
                     '<div class="section-kicker" style="margin-top:'
