@@ -53,7 +53,17 @@ h1,h2,h3 { letter-spacing:-.025em; }
 .stock-title { font-size:1.35rem; font-weight:750; }
 .stock-meta { color:var(--muted); font-size:.82rem; margin-top:.25rem; }
 .pill { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:.28rem .55rem; margin:.15rem .25rem .15rem 0; color:#cbd5df; font-size:.76rem; }
-div[data-testid="stDataFrame"] { border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+
+/* Custom CSS to enable native dragging for the Dataframe height */
+div[data-testid="stDataFrame"] { 
+    border: 1px solid var(--line); 
+    border-radius: 12px; 
+    overflow: auto !important; 
+    resize: vertical; 
+    max-height: 800px; 
+    min-height: 200px; 
+}
+
 .stTabs [data-baseweb="tab-list"] { gap:1.5rem; border-bottom:1px solid var(--line); }
 .stTabs [data-baseweb="tab"] { padding:.65rem 0; background:transparent; }
 .stTabs [aria-selected="true"] { color:var(--green)!important; }
@@ -152,7 +162,7 @@ def find_cached_ticker(company_name, cache_dir):
     """Maps broker company names to exact NSE symbols using EQUITY_L.csv."""
     original_name = str(company_name).strip().upper()
     
-    # 0. Hardcoded Common Aliases for ETFs & Edge cases
+    # Comprehensive broker mapping overrides
     KNOWN_ALIASES = {
         # --- Popular ETFs & Indices ---
         "LIQUID BEES": "LIQUIDBEES.NS",
@@ -215,6 +225,7 @@ def find_cached_ticker(company_name, cache_dir):
         "NTPC LTD": "NTPC.NS",
         "POWER GRID CORP OF INDIA LTD": "POWERGRID.NS"
     }
+    
     if original_name in KNOWN_ALIASES:
         return KNOWN_ALIASES[original_name]
 
@@ -846,29 +857,14 @@ with tab2:
 
             st.divider()
 
-            # Create columns for the header and the slider
-            c_title, c_slider = st.columns([3, 1])
+            st.subheader("All Parsed Holdings")
+            st.caption("💡 *Tip: Click and drag the bottom boundary or corner of the table to resize.*")
             
-            with c_title:
-                st.subheader("All Parsed Holdings")
-                
-            with c_slider:
-                # Slider for dynamic table height
-                table_height = st.slider(
-                    "Table Height (px)",
-                    min_value=200,
-                    max_value=800,
-                    value=400,
-                    step=50,
-                    key="parsed_holdings_height"
-                )
-
             st.dataframe(
                 res_df, 
                 column_config=col_conf, 
                 hide_index=True, 
-                width="stretch",
-                height=table_height
+                width="stretch"
             )
 
 # ==========================================
