@@ -160,6 +160,12 @@ def find_cached_ticker(company_name, cache_dir):
         "GOLD BEES": "GOLDBEES.NS",
         "NIFTY BEES": "NIFTYBEES.NS",
         "OIL AND NATURAL GAS CORP.": "ONGC.NS",
+        "AMARA RAJA ENERGY MOB LTD": "ARE&M.NS",
+        "AMARA RAJA ENERGY MOBILITY LIMITED": "ARE&M.NS",
+        "JKUMAR INFR.LTD.": "JKIL.NS",
+        "J.KUMAR INFRAPROJECTS LIMITED": "JKIL.NS",
+        "TATA MOTORS PASS VEH LTD": "TMPV.NS",
+        "TATA MOTORS PASSENGER VEHICLES LIMITED": "TMPV.NS",
     }
     if original_name in KNOWN_ALIASES:
         return KNOWN_ALIASES[original_name]
