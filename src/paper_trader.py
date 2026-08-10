@@ -72,6 +72,7 @@ def ingest_new_signals():
                 continue
 
             new_trade = {
+                "trade_id": f"{ticker}_{signal_date}",  # <-- Add this line
                 "ticker": ticker,
                 "status": "PENDING",
                 "signal_date": signal_date,
