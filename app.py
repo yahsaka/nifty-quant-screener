@@ -5,6 +5,7 @@ import pandas as pd
 import pandas_ta as ta
 import streamlit as st
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from datetime import datetime
 import yfinance as yf
 
@@ -1026,77 +1027,127 @@ your own research before trading.
             ohlcv_df = load_stock_ohlcv(selected_stock)
             if ohlcv_df is not None:
                 ohlcv_df = ohlcv_df.copy()
+                
+                # Calculate all indicators required for the 4 panels
                 ohlcv_df["EMA_50"] = ohlcv_df["Close"].ewm(span=50, adjust=False).mean()
-                ohlcv_df["EMA_200"] = (
-                    ohlcv_df["Close"].ewm(span=200, adjust=False).mean()
-                )
+                ohlcv_df["EMA_200"] = ohlcv_df["Close"].ewm(span=200, adjust=False).mean()
+                ohlcv_df.ta.rsi(length=14, append=True)
+                ohlcv_df.ta.macd(fast=12, slow=26, signal=9, append=True)
+                
                 days = {"3M": 90, "6M": 180, "1Y": 365}.get(period, 180)
                 chart_df = ohlcv_df.tail(days)
 
-                fig = go.Figure()
-                fig.add_trace(
-                    go.Candlestick(
-                        x=chart_df.index,
-                        open=chart_df["Open"],
-                        high=chart_df["High"],
-                        low=chart_df["Low"],
-                        close=chart_df["Close"],
-                        name="Price",
-                        increasing_line_color="#38d996",
-                        decreasing_line_color="#ff6470",
-                    )
-                )
-                fig.add_trace(
-                    go.Scatter(
-                        x=chart_df.index,
-                        y=chart_df["EMA_50"],
-                        mode="lines",
-                        name="50 EMA",
-                        line=dict(color="#f2b84b", width=1.4),
-                    )
-                )
-                fig.add_trace(
-                    go.Scatter(
-                        x=chart_df.index,
-                        y=chart_df["EMA_200"],
-                        mode="lines",
-                        name="200 EMA",
-                        line=dict(color="#6aa9ff", width=1.6),
-                    )
-                )
-                trade_plan = compute_trade_plan(ohlcv_df, ATR_MULTIPLIER, HOLD_DAYS)
+                # Determine volume bar colors based on daily price direction
+                vol_colors = ['#38d996' if row['Close'] >= row['Open'] else '#ff6470' for _, row in chart_df.iterrows()]
 
+                # Initialize the 4-panel subplot structure
+                fig = make_subplots(
+                    rows=4, cols=1, shared_xaxes=True,
+                    vertical_spacing=0.04,
+                    row_heights=[0.5, 0.15, 0.15, 0.2],
+                    subplot_titles=("", "Volume", "RSI (14)", "MACD (12, 26, 9)")
+                )
+
+                # ==========================================
+                # ROW 1: PRICE & EMAS
+                # ==========================================
+                fig.add_trace(go.Candlestick(
+                    x=chart_df.index, open=chart_df["Open"], high=chart_df["High"],
+                    low=chart_df["Low"], close=chart_df["Close"], name="Price",
+                    increasing_line_color="#38d996", decreasing_line_color="#ff6470",
+                    showlegend=False
+                ), row=1, col=1)
+                
+                fig.add_trace(go.Scatter(
+                    x=chart_df.index, y=chart_df["EMA_50"], mode="lines",
+                    name="50 EMA", line=dict(color="#f2b84b", width=1.4)
+                ), row=1, col=1)
+                
+                fig.add_trace(go.Scatter(
+                    x=chart_df.index, y=chart_df["EMA_200"], mode="lines",
+                    name="200 EMA", line=dict(color="#6aa9ff", width=1.6)
+                ), row=1, col=1)
+
+                # ==========================================
+                # ROW 2: VOLUME
+                # ==========================================
+                fig.add_trace(go.Bar(
+                    x=chart_df.index, y=chart_df["Volume"], name="Volume",
+                    marker_color=vol_colors, showlegend=False
+                ), row=2, col=1)
+
+                # ==========================================
+                # ROW 3: RSI (14)
+                # ==========================================
+                if "RSI_14" in chart_df.columns:
+                    fig.add_trace(go.Scatter(
+                        x=chart_df.index, y=chart_df["RSI_14"], mode="lines",
+                        name="RSI", line=dict(color="#d1dbe4", width=1.5), showlegend=False
+                    ), row=3, col=1)
+                    
+                    # Highlight the strategy's "Goldilocks" 60-70 Bull Zone
+                    fig.add_hrect(
+                        y0=60, y1=70, fillcolor="rgba(53,217,154,0.12)", 
+                        line_width=0, row=3, col=1, annotation_text="Bull Zone", 
+                        annotation_position="top left", annotation_font_color="#35d99a"
+                    )
+
+                # ==========================================
+                # ROW 4: MACD
+                # ==========================================
+                if "MACD_12_26_9" in chart_df.columns:
+                    macd_colors = ['#38d996' if val >= 0 else '#ff6470' for val in chart_df["MACDh_12_26_9"]]
+                    
+                    # Histogram
+                    fig.add_trace(go.Bar(
+                        x=chart_df.index, y=chart_df["MACDh_12_26_9"], name="MACD Hist",
+                        marker_color=macd_colors, showlegend=False
+                    ), row=4, col=1)
+                    # MACD Line
+                    fig.add_trace(go.Scatter(
+                        x=chart_df.index, y=chart_df["MACD_12_26_9"], mode="lines",
+                        name="MACD", line=dict(color="#73aaff", width=1.5), showlegend=False
+                    ), row=4, col=1)
+                    # Signal Line
+                    fig.add_trace(go.Scatter(
+                        x=chart_df.index, y=chart_df["MACDs_12_26_9"], mode="lines",
+                        name="Signal", line=dict(color="#f3bd55", width=1.5), showlegend=False
+                    ), row=4, col=1)
+
+                # ==========================================
+                # PLAN ANNOTATIONS (STOP LOSS & ENTRY)
+                # ==========================================
+                trade_plan = compute_trade_plan(ohlcv_df, ATR_MULTIPLIER, HOLD_DAYS)
                 if trade_plan:
                     fig.add_hline(
-                        y=trade_plan["stop"],
-                        line=dict(color="#ff6672", width=1.2, dash="dash"),
-                        annotation_text="Model stop",
-                        annotation_position="bottom right",
-                        annotation_font_color="#ff6672",
+                        y=trade_plan["stop"], line=dict(color="#ff6672", width=1.2, dash="dash"),
+                        annotation_text="Model stop", annotation_position="bottom right",
+                        annotation_font_color="#ff6672", row=1, col=1
                     )
                     fig.add_hline(
-                        y=trade_plan["entry"],
-                        line=dict(color="#73aaff", width=1, dash="dot"),
-                        annotation_text="Reference entry",
-                        annotation_position="top right",
-                        annotation_font_color="#73aaff",
+                        y=trade_plan["entry"], line=dict(color="#73aaff", width=1, dash="dot"),
+                        annotation_text="Reference entry", annotation_position="top right",
+                        annotation_font_color="#73aaff", row=1, col=1
                     )
 
+                # ==========================================
+                # LAYOUT & STYLING
+                # ==========================================
                 fig.update_layout(
-                    height=560,
-                    margin=dict(l=10, r=10, t=20, b=10),
+                    height=850,  # Increased height to fit 4 panels beautifully
+                    margin=dict(l=10, r=10, t=30, b=10),
                     paper_bgcolor="#0b0f14",
                     plot_bgcolor="#0b0f14",
-                    font=dict(color="#aeb9c4"),
+                    font=dict(color="#aeb9c4", size=10),
                     xaxis_rangeslider_visible=False,
                     hovermode="x unified",
-                    legend=dict(orientation="h", y=1.03, x=0),
-                    xaxis=dict(showgrid=False),
-                    yaxis=dict(title="Price (INR)", gridcolor="#1b2530"),
+                    legend=dict(orientation="h", y=1.02, x=0),
                 )
-                st.plotly_chart(
-                    fig, width="stretch", config={"displayModeBar": False}
-                )
+                
+                fig.update_xaxes(showgrid=False, zeroline=False)
+                fig.update_yaxes(gridcolor="#1b2530", zerolinecolor="#1b2530")
+                
+                st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
                 st.markdown(
                     '<div class="section-kicker" style="margin-top:'
@@ -1528,6 +1579,8 @@ with tab3:
         
     st.divider()
     
+    st.divider()
+    
     # --- CLOSED TRADES (PERFORMANCE) ---
     st.subheader("📊 Historical Performance")
     if not closed_trades:
@@ -1535,24 +1588,97 @@ with tab3:
     else:
         closed_df = pd.DataFrame(closed_trades)
         
+        # Ensure dates are sorted chronologically for the equity curve
+        closed_df["exit_date"] = pd.to_datetime(closed_df["exit_date"])
+        closed_df = closed_df.sort_values("exit_date")
+        
         # Calculate summary metrics
         wins = closed_df[closed_df["realized_pnl_pct"] > 0]
+        losses = closed_df[closed_df["realized_pnl_pct"] <= 0]
         win_rate = (len(wins) / len(closed_df)) * 100
         avg_return = closed_df["realized_pnl_pct"].mean()
         
-        c1, c2, c3 = st.columns(3)
+        # Top level metric row
+        c1, c2, c3, c4 = st.columns(4)
         c1.metric("Win Rate", f"{win_rate:.1f}%", help="Percentage of trades closed with a profit.")
         c2.metric("Average Return", f"{avg_return:+.2f}%", help="Average return across all closed trades (includes slippage & costs).")
-        c3.metric("Total Trades", len(closed_df))
+        c3.metric("Profitable Trades", len(wins))
+        c4.metric("Total Trades", len(closed_df))
         
-        display_closed = closed_df[["ticker", "entry_date", "exit_date", "exit_reason", "realized_pnl_pct"]]
-        display_closed = display_closed.rename(columns={"ticker": "Ticker", "entry_date": "Entry", "exit_date": "Exit", "exit_reason": "Reason", "realized_pnl_pct": "Realized P&L"})
+        # Charts Row
+        chart_col1, chart_col2 = st.columns([2.5, 1])
+        
+        with chart_col1:
+            # Cumulative Equity Curve
+            closed_df["Cumulative_PnL"] = closed_df["realized_pnl_pct"].cumsum()
+            
+            fig_eq = go.Figure()
+            fig_eq.add_trace(go.Scatter(
+                x=closed_df["exit_date"], 
+                y=closed_df["Cumulative_PnL"],
+                mode="lines+markers",
+                line=dict(color="#73aaff", width=3),
+                marker=dict(size=6, color="#dfe6ec"),
+                name="Cumulative Return",
+                hovertemplate="%{x}<br>Cumulative: %{y:+.2f}%<extra></extra>"
+            ))
+            fig_eq.update_layout(
+                title="Cumulative Strategy Return (%)",
+                height=320,
+                margin=dict(l=10, r=10, t=40, b=10),
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#aeb9c4"),
+                xaxis=dict(showgrid=False),
+                yaxis=dict(showgrid=True, gridcolor="#1b2530", zerolinecolor="#344552")
+            )
+            st.plotly_chart(fig_eq, use_container_width=True, config={"displayModeBar": False})
+            
+        with chart_col2:
+            # Win/Loss Donut Chart
+            fig_pie = go.Figure(data=[go.Pie(
+                labels=["Wins", "Losses"], 
+                values=[len(wins), len(losses)], 
+                hole=.6,
+                marker_colors=["#35d99a", "#ff6672"],
+                textinfo="percent+label",
+                textposition="inside",
+                insidetextorientation="radial"
+            )])
+            fig_pie.update_layout(
+                title="Trade Outcomes",
+                height=320,
+                margin=dict(l=10, r=10, t=40, b=10),
+                paper_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#aeb9c4"),
+                showlegend=False
+            )
+            st.plotly_chart(fig_pie, use_container_width=True, config={"displayModeBar": False})
+
+        # Trade Log Dataframe
+        st.markdown('<div class="section-kicker">Trade Log</div>', unsafe_allow_html=True)
+        display_closed = closed_df[["ticker", "entry_date", "exit_date", "exit_reason", "realized_pnl_pct"]].copy()
+        
+        # Convert exit_date back to a clean string format for display
+        display_closed["exit_date"] = display_closed["exit_date"].dt.strftime('%Y-%m-%d')
+        
+        display_closed = display_closed.rename(columns={
+            "ticker": "Ticker", 
+            "entry_date": "Entry", 
+            "exit_date": "Exit", 
+            "exit_reason": "Reason", 
+            "realized_pnl_pct": "Realized P&L (%)"
+        })
+        
+        # Pandas styling to color-code the P&L column
+        def color_pnl(val):
+            color = '#35d99a' if val > 0 else '#ff6672' if val < 0 else '#8796a5'
+            return f'color: {color}; font-weight: 600;'
+        
+        styled_df = display_closed.style.map(color_pnl, subset=['Realized P&L (%)']).format({'Realized P&L (%)': "{:+.2f}%"})
         
         st.dataframe(
-            display_closed,
-            column_config={
-                "Realized P&L": st.column_config.NumberColumn(format="%+.2f%%")
-            },
+            styled_df,
             hide_index=True,
             width="stretch"
         )
