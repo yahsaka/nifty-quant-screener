@@ -128,16 +128,15 @@ def evaluate_setup(
     if rsi_14 is not None and 60 < rsi_14 <= 70:
         triggers.append("RSI_60_TO_70")
 
-    macd_columns = [c for c in df.columns if str(c).startswith("MACD_")]
-    signal_columns = [c for c in df.columns if str(c).startswith("MACDs_")]
-    if macd_columns and signal_columns:
-        macd = _finite(latest[macd_columns[0]])
-        signal = _finite(latest[signal_columns[0]])
-        previous_macd = _finite(previous[macd_columns[0]])
-        previous_signal = _finite(previous[signal_columns[0]])
-        if None not in (macd, signal, previous_macd, previous_signal):
-            if macd > signal and previous_macd <= previous_signal:
-                triggers.append("MACD_BULLISH_CROSS")
+    # EXPLICIT MACD LOOKUP: Hardcoded parameters preventing silent trigger drops
+    macd = _finite(latest.get("MACD_12_26_9"))
+    signal = _finite(latest.get("MACDs_12_26_9"))
+    previous_macd = _finite(previous.get("MACD_12_26_9"))
+    previous_signal = _finite(previous.get("MACDs_12_26_9"))
+    
+    if None not in (macd, signal, previous_macd, previous_signal):
+        if macd > signal and previous_macd <= previous_signal:
+            triggers.append("MACD_BULLISH_CROSS")
 
     score = len(triggers)
     status = "Trade-Ready" if score >= TRADE_READY_MIN_SCORE else "Watchlist" if score >= WATCHLIST_MIN_SCORE else "No setup"
