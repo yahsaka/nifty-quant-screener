@@ -1,1 +1,37 @@
-
+[
+  {
+    "ticker": "BEML",
+    "status": "PENDING",
+    "signal_date": "2026-08-10",
+    "atr_at_signal": 63.3,
+    "target_hold_days": 20
+  },
+  {
+    "ticker": "POLYMED",
+    "status": "PENDING",
+    "signal_date": "2026-08-10",
+    "atr_at_signal": 58.73,
+    "target_hold_days": 20
+  },
+  {
+    "ticker": "BRIGADE",
+    "status": "PENDING",
+    "signal_date": "2026-08-10",
+    "atr_at_signal": 18.61,
+    "target_hold_days": 20
+  },
+  {
+    "ticker": "SUMICHEM",
+    "status": "PENDING",
+    "signal_date": "2026-08-10",
+    "atr_at_signal": 20.69,
+    "target_hold_days": 20
+  },
+  {
+    "ticker": "RHIM",
+    "status": "PENDING",
+    "signal_date": "2026-08-10",
+    "atr_at_signal": 14.46,
+    "target_hold_days": 20
+  }
+]
