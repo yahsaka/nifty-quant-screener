@@ -1,16 +1,1 @@
-[
-  {
-    "trade_id": "RELIANCE-20260807",
-    "ticker": "RELIANCE.NS",
-    "entry_date": "2026-08-07",
-    "entry_price": 2950.45,
-    "qty": 33,
-    "stop_price": 2810.20,
-    "exit_target_date": "2026-09-04",
-    "status": "OPEN",
-    "exit_date": null,
-    "exit_price": null,
-    "exit_reason": null,
-    "realized_pnl_pct": null
-  }
-]
+
