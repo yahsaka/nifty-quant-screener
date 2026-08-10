@@ -1487,17 +1487,30 @@ with tab3:
         for t in open_trades:
             # Fetch latest price from cache for live P&L
             ohlcv = load_stock_ohlcv(t["ticker"])
-            current_price = float(ohlcv["Close"].iloc[-1]) if (ohlcv is not None and not ohlcv.empty) else t["entry_price"]
-            unrealized_pnl = ((current_price / t["entry_price"]) - 1) * 100
+            entry_price = t.get("entry_price")
+            
+            if ohlcv is not None and not ohlcv.empty:
+                current_price = float(ohlcv["Close"].iloc[-1])
+            else:
+                current_price = entry_price if entry_price else 0.0
+            
+            # Only calculate P&L if the trade is actually OPEN and has an entry price
+            if entry_price and entry_price > 0:
+                unrealized_pnl = ((current_price / entry_price) - 1) * 100
+            else:
+                unrealized_pnl = None
+            
+            # Format ticker slightly to make pending status obvious
+            ticker_display = f"⏳ {t['ticker']}" if t["status"] == "PENDING" else t["ticker"]
             
             active_data.append({
-                "Ticker": t["ticker"],
-                "Entry Date": t["entry_date"],
-                "Entry Price": t["entry_price"],
-                "Current Price": current_price,
+                "Ticker": ticker_display,
+                "Entry Date": t.get("entry_date", "Pending open..."),
+                "Entry Price": entry_price,
+                "Current Price": current_price if current_price > 0 else None,
                 "Unrealized P&L": unrealized_pnl,
-                "Stop Loss": t["stop_price"],
-                "Exit Target": t["exit_target_date"]
+                "Stop Loss": t.get("stop_price"),
+                "Exit Target": t.get("exit_target_date", "Pending...")
             })
             
         active_df = pd.DataFrame(active_data)
