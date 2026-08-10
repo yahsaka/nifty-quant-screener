@@ -1475,7 +1475,7 @@ with tab3:
     st.caption("Monitor your live forward-test. Open trades are evaluated daily by the automated execution script.")
     
     trades = load_paper_trades()
-    open_trades = [t for t in trades if t["status"] == "OPEN"]
+    open_trades = [t for t in trades if t["status"] in ["OPEN", "PENDING"]]
     closed_trades = [t for t in trades if t["status"] == "CLOSED"]
     
     # --- ACTIVE TRADES ---
