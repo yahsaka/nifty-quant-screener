@@ -33,6 +33,7 @@ ATR_MULTIPLIER = float(os.getenv("BACKTEST_ATR_MULTIPLIER", "2.0"))
 ENTRY_SLIPPAGE_BPS = int(os.getenv("BACKTEST_ENTRY_SLIPPAGE_BPS", "5"))
 EXIT_SLIPPAGE_BPS = int(os.getenv("BACKTEST_EXIT_SLIPPAGE_BPS", "5"))
 ROUND_TRIP_COST_BPS = int(os.getenv("BACKTEST_ROUND_TRIP_COST_BPS", "20"))
+BACKTEST_HISTORY_PATH = os.getenv("BACKTEST_HISTORY_PATH", "data/backtest_history.json")
 
 
 def _finite(value: object) -> Optional[float]:
@@ -174,6 +175,36 @@ def _summary(results: pd.DataFrame) -> pd.DataFrame:
         )
     return pd.DataFrame(rows)
 
+def log_backtest_results(summary_df: pd.DataFrame) -> None:
+    """Appends the current backtest run metrics and .env parameters to a history file."""
+    record = {
+        "timestamp": datetime.now().isoformat(),
+        "parameters": {
+            "WATCHLIST_MIN_SCORE": WATCHLIST_MIN_SCORE,
+            "HOLD_DAYS": HOLD_DAYS,
+            "ATR_MULTIPLIER": ATR_MULTIPLIER,
+            "ENTRY_SLIPPAGE_BPS": ENTRY_SLIPPAGE_BPS,
+            "EXIT_SLIPPAGE_BPS": EXIT_SLIPPAGE_BPS,
+            "ROUND_TRIP_COST_BPS": ROUND_TRIP_COST_BPS,
+        },
+        "metrics": summary_df.to_dict(orient="records")
+    }
+    
+    history = []
+    if os.path.exists(BACKTEST_HISTORY_PATH):
+        try:
+            with open(BACKTEST_HISTORY_PATH, "r") as f:
+                history = json.load(f)
+        except json.JSONDecodeError:
+            pass
+            
+    history.append(record)
+    
+    os.makedirs(os.path.dirname(BACKTEST_HISTORY_PATH), exist_ok=True)
+    with open(BACKTEST_HISTORY_PATH, "w", encoding="utf-8") as f:
+        json.dump(history, f, indent=2)
+    
+    LOGGER.info(f"Appended run metrics to {BACKTEST_HISTORY_PATH}")
 
 def run_backtest() -> None:
     LOGGER.info(
@@ -213,3 +244,16 @@ def run_backtest() -> None:
 
 if __name__ == "__main__":
     run_backtest()
+
+# ... existing run_backtest code ...
+    results = pd.DataFrame(all_signals)
+    if results.empty:
+        LOGGER.warning("No qualifying signals found.")
+        return
+        
+    summary_df = _summary(results)
+    print("\nSIX-POINT SCREENER BACKTEST RESULTS")
+    print(summary_df.to_markdown(index=False))
+    
+    # NEW: Log to history
+    log_backtest_results(summary_df)
