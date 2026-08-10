@@ -4,136 +4,131 @@ import pytest
 import pandas as pd
 import numpy as np
 
-# Adjust these imports based on your actual file structure
-from src.screener import evaluate_setup
-from src.paper_trader import _execute_trade 
+# Now these imports will resolve correctly thanks to conftest.py
+from screener import evaluate_setup, BULLISH, BEARISH
+from backtest import _execute_trade
 
 # ==========================================
 # TEST: evaluate_setup()
 # ==========================================
 
-def test_evaluate_setup_triggers_on_valid_conditions():
+def test_evaluate_setup_perfect_score():
     """
-    Feeds synthetic OHLCV data with known EMA/RSI/MACD values to ensure
-    the trigger fires ONLY when conditions are met.
+    Feeds a 2-row synthetic DataFrame to trigger all 6 conditions simultaneously:
+    ABOVE_EMA_200, EMA_200_BREAKOUT, ABOVE_EMA_50, VOLUME_SPIKE_2X, 
+    RSI_60_TO_70, and MACD_BULLISH_CROSS.
     """
-    # Synthetic data simulating a fresh Bullish MACD crossover
-    data = {
-        "Open": [100.0, 101.0],
-        "High": [102.0, 105.0],
-        "Low": [99.0, 100.5],
-        "Close": [101.0, 104.0],
-        "Volume": [1000, 2000],
-        "EMA_20": [98.0, 98.5],       # Close > EMA_20
-        "EMA_50": [95.0, 95.2],       # EMA_20 > EMA_50
-        "RSI_14": [48.0, 55.0],       # RSI crossed above 50
-        "MACD_12_26_9": [-0.1, 0.5],  # MACD line crossed above signal
-        "MACDs_12_26_9": [0.0, 0.1],  # Signal line
-        "MACDh_12_26_9": [-0.1, 0.4]  # Histogram turned positive
-    }
-    df = pd.DataFrame(data)
+    df = pd.DataFrame({
+        "Close": [99.0, 105.0],           # Crosses 100 to trigger Breakout
+        "EMA_50": [95.0, 95.0],           # Close > 95
+        "EMA_200": [100.0, 100.0],        # Prev < 100, Curr > 100
+        "RSI_14": [50.0, 65.0],           # Lands in 60-70 range
+        "Volume": [1000.0, 5000.0],       # 5000 > (2 * 1000)
+        "VOL_SMA_20": [1000.0, 1000.0],
+        "MACD_12_26_9": [-0.5, 1.0],      # Crosses above signal
+        "MACDs_12_26_9": [0.0, 0.5]
+    })
     
-    # Assert the setup fires
-    assert evaluate_setup(df) is True, "Setup should trigger on valid bullish momentum"
+    idx = 1 # Evaluate the latest row
+    
+    result = evaluate_setup(df, idx, market_regime=BULLISH, ticker="TEST")
+    
+    assert result is not None
+    assert result["score"] == 6
+    assert result["status"] == "Trade-Ready"
+    assert "EMA_200_BREAKOUT" in result["triggers"]
+    assert "MACD_BULLISH_CROSS" in result["triggers"]
 
-def test_evaluate_setup_fails_on_weak_rsi():
-    """Ensures the trigger fails if MACD is good but RSI is below the threshold."""
-    data = {
-        "Close": [101.0, 104.0],
-        "EMA_20": [98.0, 98.5],
-        "EMA_50": [95.0, 95.2],
-        "RSI_14": [45.0, 49.0],       # <--- RSI below 50
-        "MACD_12_26_9": [-0.1, 0.5],
-        "MACDs_12_26_9": [0.0, 0.1],
-        "MACDh_12_26_9": [-0.1, 0.4]
-    }
-    df = pd.DataFrame(data)
-    assert evaluate_setup(df) is False, "Setup should NOT trigger if RSI is weak"
+def test_evaluate_setup_fails_overextended():
+    """
+    Ensures a setup is discarded (returns None) if the price is > 15% above the 50 EMA,
+    even if all other indicators are bullish.
+    """
+    df = pd.DataFrame({
+        "Close": [99.0, 120.0],           # 120 is 26% above EMA_50 (95)
+        "EMA_50": [95.0, 95.0],
+        "EMA_200": [100.0, 100.0],
+        "RSI_14": [50.0, 65.0],
+        "Volume": [1000.0, 5000.0],
+        "VOL_SMA_20": [1000.0, 1000.0],
+        "MACD_12_26_9": [-0.5, 1.0],
+        "MACDs_12_26_9": [0.0, 0.5]
+    })
+    
+    result = evaluate_setup(df, idx=1, market_regime=BULLISH, ticker="TEST")
+    assert result is None, "Should reject stock if pct_above_50 > MAX_PCT_ABOVE_50EMA"
 
+def test_evaluate_setup_fails_bearish_regime():
+    """Returns None immediately if the market regime is not BULLISH."""
+    df = pd.DataFrame({
+        "Close": [99.0, 105.0], "EMA_50": [95.0, 95.0], "EMA_200": [100.0, 100.0],
+        "RSI_14": [65.0, 65.0], "Volume": [5000, 5000], "VOL_SMA_20": [1000, 1000],
+        "MACD_12_26_9": [1.0, 1.0], "MACDs_12_26_9": [0.5, 0.5]
+    })
+    result = evaluate_setup(df, idx=1, market_regime=BEARISH)
+    assert result is None
 
 # ==========================================
 # TEST: _execute_trade()
 # ==========================================
 
-# Assuming _execute_trade signature looks something like:
-# _execute_trade(entry_price, stop_loss_price, slippage_pct, df_future_data)
-
 @pytest.fixture
-def slippage_pct():
-    return 0.001 # 0.1% slippage
-
-def test_execute_trade_gap_down_below_stop_loss(slippage_pct):
-    """
-    Costliest bug: If a stock gaps down below your Stop Loss at the open, 
-    you CANNOT exit at your Stop Loss. You exit at the Open - slippage.
-    """
-    entry_price = 100.0
-    stop_loss = 95.0
-    
-    # Next day opens massively lower than the SL
-    future_data = pd.DataFrame({
-        "Open": [90.0], 
-        "High": [92.0],
-        "Low": [88.0],
-        "Close": [91.0]
+def df_trade_base():
+    """Creates a 25-session OHLC dataframe to test the 20-day hold logic."""
+    return pd.DataFrame({
+        "Open": [100.0] * 25,
+        "High": [105.0] * 25,
+        "Low": [98.0] * 25,
+        "Close": [102.0] * 25
     })
-    
-    # Expected logic: 
-    # Open (90.0) < SL (95.0) -> Immediate market order at Open.
-    # Exit Price = 90.0 - (90.0 * 0.001) = 89.91
-    expected_exit = 90.0 * (1 - slippage_pct)
-    
-    exit_price, exit_reason = _execute_trade(entry_price, stop_loss, slippage_pct, future_data)
-    
-    assert exit_reason == "SL_GAP_DOWN"
-    assert np.isclose(exit_price, expected_exit), f"Expected {expected_exit}, got {exit_price}"
 
-def test_execute_trade_intraday_stop_loss_hit(slippage_pct):
-    """
-    Tests standard intraday SL hit. The price opens above SL, but drops below it during the day.
-    Exit should occur exactly at SL price - slippage.
-    """
-    entry_price = 100.0
-    stop_loss = 95.0
+def test_execute_trade_time_exit(df_trade_base):
+    """Test full 20-day hold with no stop loss hit."""
+    # signal_idx = 0. Entry is on idx 1. 
+    # Entry Price = 100.0 * (1 + 0.0005 slippage) = 100.05
+    # ATR = 5.0. Stop = 100.05 - (2.0 * 5.0) = 90.05
     
-    future_data = pd.DataFrame({
-        "Open": [98.0], 
-        "High": [99.0],
-        "Low": [94.0],  # <--- Drops below SL intraday
-        "Close": [96.0]
-    })
+    trade = _execute_trade(df_trade_base, signal_idx=0, atr=5.0)
     
-    # Expected logic:
-    # Low (94.0) <= SL (95.0) -> Stop limit triggered.
-    # Exit Price = 95.0 - (95.0 * 0.001) = 94.905
-    expected_exit = stop_loss * (1 - slippage_pct)
+    assert trade is not None
+    assert trade["Exit Reason"] == "Time exit"
+    assert np.isclose(trade["Entry Price"], 100.05)
     
-    exit_price, exit_reason = _execute_trade(entry_price, stop_loss, slippage_pct, future_data)
-    
-    assert exit_reason == "SL_HIT"
-    assert np.isclose(exit_price, expected_exit), f"Expected {expected_exit}, got {exit_price}"
+    # Exit on idx 20 (entry + 20 - 1). Close is 102.0
+    # Exit Price = 102.0 * (1 - 0.0025 friction) = 101.745
+    assert np.isclose(trade["Exit Price"], 101.745)
+    assert trade["Hit_SL"] is False
 
-def test_execute_trade_time_based_exit(slippage_pct):
-    """
-    Tests that if the SL is never breached, the trade exits at the Close price
-    of the final period (Time Exit), accounting for slippage.
-    """
-    entry_price = 100.0
-    stop_loss = 95.0
+def test_execute_trade_intraday_atr_stop(df_trade_base):
+    """Test intraday stop hit where Open is safe, but Low breaches stop."""
+    df = df_trade_base.copy()
     
-    future_data = pd.DataFrame({
-        "Open": [101.0], 
-        "High": [106.0],
-        "Low": [99.0],   # SL never hit
-        "Close": [105.0] # Exits here
-    })
+    # Entry is 100.05, Stop is 90.05.
+    # On day 5, price drops to 89 during the session, but opens at 100.
+    df.loc[5, "Open"] = 100.0
+    df.loc[5, "Low"] = 89.0 
     
-    # Expected logic:
-    # SL intact. Exit at End of Day/Period.
-    # Exit Price = 105.0 - (105.0 * 0.001) = 104.895
-    expected_exit = 105.0 * (1 - slippage_pct)
+    trade = _execute_trade(df, signal_idx=0, atr=5.0)
     
-    exit_price, exit_reason = _execute_trade(entry_price, stop_loss, slippage_pct, future_data)
+    assert trade["Exit Reason"] == "ATR stop"
+    assert trade["Hit_SL"] is True
+    # Exits at exact stop price (90.05) minus friction
+    expected_exit = 90.05 * (1 - 0.0025)
+    assert np.isclose(trade["Exit Price"], expected_exit)
+
+def test_execute_trade_gap_down_stop(df_trade_base):
+    """Test catastrophic gap down where stock opens below the stop loss."""
+    df = df_trade_base.copy()
     
-    assert exit_reason == "TIME_EXIT"
-    assert np.isclose(exit_price, expected_exit), f"Expected {expected_exit}, got {exit_price}"
+    # Entry is 100.05, Stop is 90.05.
+    # On day 5, stock violently gaps down and opens at 85.0
+    df.loc[5, "Open"] = 85.0
+    df.loc[5, "Low"] = 84.0 
+    
+    trade = _execute_trade(df, signal_idx=0, atr=5.0)
+    
+    assert trade["Exit Reason"] == "ATR stop (gap)"
+    assert trade["Hit_SL"] is True
+    # Exits at the weaker opening price (85.0) minus friction, NOT the stop price
+    expected_exit = 85.0 * (1 - 0.0025)
+    assert np.isclose(trade["Exit Price"], expected_exit)
