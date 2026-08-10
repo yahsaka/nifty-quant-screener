@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: write
-
+# random
 # A manual run must not race a scheduled run and overwrite its results/cache.
 concurrency:
   group: daily-nifty-quant-screener
