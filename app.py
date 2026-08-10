@@ -1137,7 +1137,7 @@ your own research before trading.
                 fig.update_xaxes(showgrid=False, zeroline=False)
                 fig.update_yaxes(gridcolor="#1b2530", zerolinecolor="#1b2530")
                 
-                st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
+                st.plotly_chart(fig, width="stretch", config={"displayModeBar": False, "scrollZoom": False})
 
                 st.markdown(
                     '<div class="section-kicker" style="margin-top:'
