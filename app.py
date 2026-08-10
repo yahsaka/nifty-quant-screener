@@ -92,7 +92,7 @@ def load_paper_trades():
 def add_paper_trade(new_trade):
     trades = load_paper_trades()
     # Prevent exact duplicates
-    if any(t["trade_id"] == new_trade["trade_id"] for t in trades):
+    if any(t.get("trade_id") == new_trade.get("trade_id") for t in trades if "trade_id" in t):
         return False
     trades.append(new_trade)
     os.makedirs(os.path.dirname(PAPER_TRADES_FILE), exist_ok=True)
