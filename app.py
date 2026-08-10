@@ -858,110 +858,100 @@ your own research before trading.
         st.subheader("Signals")
 
         if not signals_df.empty:
-            f1, f2, f3 = st.columns([1.2, 1.2, 2.6])
+            # --- UPGRADED FILTERING UI ---
+            f1, f2, f3, f4 = st.columns([1.2, 1.1, 1.5, 2.2])
+            
             status_filter = f1.multiselect(
                 "Status",
                 ["Trade-Ready", "Watchlist"],
                 default=["Trade-Ready", "Watchlist"],
-                help=(
-                    "Trade-Ready = strongest setups (score "
-                    f"{TRADE_READY_MIN_SCORE}-6). Watchlist = still forming, worth "
-                    f"keeping an eye on (score {WATCHLIST_MIN_SCORE}-{TRADE_READY_MIN_SCORE - 1})."
-                ),
+                help=f"Trade-Ready = strongest setups (score {TRADE_READY_MIN_SCORE}-6). Watchlist = still forming (score {WATCHLIST_MIN_SCORE}-{TRADE_READY_MIN_SCORE - 1}).",
             )
             
-            # Dynamically build score dropdown starting from WATCHLIST_MIN_SCORE
             score_options = list(range(WATCHLIST_MIN_SCORE, 7))
             min_score = f2.selectbox(
-                "Minimum score",
+                "Min score",
                 score_options,
                 index=0,
-                help=(
-                    "Each stock earns up to 6 points, one per technical rule it "
-                    "passes today. Raise this to see only stocks confirming more "
-                    "rules at once — historically stronger setups, but fewer results."
-                ),
+                help="Raise this to see only stocks confirming more rules at once.",
             )
+            
             search = f3.text_input(
                 "Find ticker",
-                placeholder="Search RELIANCE, INFY…",
-                help="Type any part of an NSE symbol to narrow the list below.",
+                placeholder="RELIANCE, INFY…",
+                help="Type any part of an NSE symbol to narrow the list.",
+            )
+            
+            # NEW: Filter by specific technical triggers
+            trigger_filter = f4.multiselect(
+                "Required signals",
+                options=list(TRIGGER_LABEL.keys()),
+                format_func=lambda x: TRIGGER_LABEL[x],
+                help="Only show stocks that triggered these specific technical rules today.",
             )
 
+            # Apply core filters
             filtered = signals_df[
                 signals_df["status"].isin(status_filter)
                 & (signals_df["score"] >= min_score)
             ].copy()
+            
             if search:
-                filtered = filtered[
-                    filtered["ticker"].str.contains(search, case=False, na=False)
-                ]
+                filtered = filtered[filtered["ticker"].str.contains(search, case=False, na=False)]
+                
+            # Apply trigger filters
+            if trigger_filter:
+                for t in trigger_filter:
+                    # Check if the specific trigger is in the stock's triggers list
+                    filtered = filtered[filtered["triggers"].apply(lambda x: t in x if isinstance(x, list) else False)]
+                    
             filtered = filtered.sort_values(["score", "volume_ratio"], ascending=[False, False])
 
-            # Safety check: generate triggers_str if missing from JSON
-            if (
-                "triggers_str" not in filtered.columns
-                and "triggers" in filtered.columns
-            ):
+            # Safety check: generate triggers_str if missing
+            if "triggers_str" not in filtered.columns and "triggers" in filtered.columns:
                 filtered["triggers_str"] = filtered["triggers"].apply(
                     lambda x: ", ".join(x) if isinstance(x, list) else ""
                 )
 
-            desired_cols = [
-                "ticker",
-                "status",
-                "score",
-                "close",
-                "rsi_14",
-                "volume_ratio",
-                "pct_above_50",
-                "triggers_str",
-            ]
+            desired_cols = ["ticker", "status", "score", "close", "rsi_14", "volume_ratio", "pct_above_50", "triggers_str"]
             display_cols = [col for col in desired_cols if col in filtered.columns]
 
             col_config = {
-                "ticker": st.column_config.TextColumn(
-                    "Ticker", help="The stock's NSE trading symbol — search for this on your broker app."
-                ),
-                "status": st.column_config.TextColumn(
-                    "Status",
-                    help=f"Trade-Ready = strongest setup (Score {TRADE_READY_MIN_SCORE}-6). Watchlist = still forming (Score {WATCHLIST_MIN_SCORE}-{TRADE_READY_MIN_SCORE-1}).",
-                ),
-                "score": st.column_config.ProgressColumn(
-                    "Score",
-                    min_value=0,
-                    max_value=6,
-                    format="%d / 6",
-                    help="How many of the 6 technical rules (trend, momentum, volume) this stock passes today. Higher = more confirmation, not a guarantee.",
-                ),
-                "close": st.column_config.NumberColumn(
-                    "Price", format="₹%.2f", help="Most recent closing price on the NSE."
-                ),
-                "rsi_14": st.column_config.NumberColumn(
-                    "RSI",
-                    format="%.1f",
-                    help="Relative Strength Index (0-100): measures recent buying vs. selling pressure. This screener looks for 60-70, a 'strong but not overheated' zone. Above 70 is often called overbought.",
-                ),
-                "volume_ratio": st.column_config.NumberColumn(
-                    "Volume",
-                    format="%.2fx",
-                    help="Today's shares traded vs. the normal 20-day average. 2x+ means unusually high interest in the stock today.",
-                ),
-                "pct_above_50": st.column_config.NumberColumn(
-                    "Above 50 EMA",
-                    format="%+.2f%%",
-                    help="How far the price sits above its 50-day trend average. The screener skips anything over 15% above, to avoid chasing a stock that's already run up a lot.",
-                ),
-                "triggers_str": st.column_config.TextColumn(
-                    "Technical triggers", help="The specific rules this stock passed today. Hover a badge in 'Stock analysis' below for a plain-English explanation of each one.",
-                ),
+                "ticker": st.column_config.TextColumn("Ticker", help="The stock's NSE trading symbol."),
+                "status": st.column_config.TextColumn("Status"),
+                "score": st.column_config.ProgressColumn("Score", min_value=0, max_value=6, format="%d / 6"),
+                "close": st.column_config.NumberColumn("Price", format="₹%.2f"),
+                "rsi_14": st.column_config.NumberColumn("RSI", format="%.1f"),
+                "volume_ratio": st.column_config.NumberColumn("Volume", format="%.2fx"),
+                "pct_above_50": st.column_config.NumberColumn("Above 50 EMA", format="%+.2f%%"),
+                "triggers_str": st.column_config.TextColumn("Technical triggers"),
             }
-            st.caption(
-                "💡 Not sure what a column means? Hover over any column header for an "
-                "explanation, or check the **📚 TA Glossary** tab above."
-            )
+            
+            st.caption("💡 Not sure what a column means? Hover over any column header for an explanation.")
+
+            # --- CONDITIONAL FORMATTING ---
+            def highlight_rsi(val):
+                if pd.isna(val): return ''
+                # Paint the 'Bull Zone' Green, and 'Overbought' Red
+                if 60 <= val <= 70: return 'color: #35d99a; font-weight: 700;'
+                if val > 70: return 'color: #ff6672;'
+                return 'color: #8796a5;'
+
+            def highlight_volume(val):
+                if pd.isna(val): return ''
+                # Highlight massive volume spikes in Amber
+                if val >= 2.0: return 'color: #f3bd55; font-weight: 700;'
+                return ''
+
+            # Apply styles safely only to existing columns
+            styled_df = filtered[display_cols].style
+            if "rsi_14" in display_cols:
+                styled_df = styled_df.map(highlight_rsi, subset=["rsi_14"])
+            if "volume_ratio" in display_cols:
+                styled_df = styled_df.map(highlight_volume, subset=["volume_ratio"])
+
             st.dataframe(
-                filtered[display_cols],
+                styled_df,
                 column_config=col_config,
                 hide_index=True,
                 width="stretch",
