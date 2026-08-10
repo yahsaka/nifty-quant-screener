@@ -2,12 +2,13 @@ name: Daily Nifty Quant Screener
 
 on:
   schedule:
-    - cron: "30 10 * * 1-5" # 5:00 PM IST, after the regular NSE close and data settlement
+    # 10:30 UTC = 4:00 PM IST, after the regular NSE close and data settlement
+    - cron: "30 10 * * 1-5" 
   workflow_dispatch:
 
 permissions:
   contents: write
-# random
+
 # A manual run must not race a scheduled run and overwrite its results/cache.
 concurrency:
   group: daily-nifty-quant-screener
@@ -53,6 +54,9 @@ jobs:
           echo "Expected $expected ticker files; found $cached cached files."
           test "$cached" -ge "$expected"
 
+      - name: Execute Paper Trades (Manage Open Positions)
+        run: python src/paper_trader.py
+
       - name: Run quantitative screener
         run: python src/screener.py
 
@@ -74,7 +78,7 @@ jobs:
               raise SystemExit("Screener reported failed ticker evaluations.")
           PY
 
-      - name: Execute Paper Trades
+      - name: Auto-Ingest New Setups (Stage Pending Positions)
         run: python src/paper_trader.py
 
       - name: Commit and push results
