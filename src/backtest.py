@@ -175,6 +175,7 @@ def _summary(results: pd.DataFrame) -> pd.DataFrame:
         )
     return pd.DataFrame(rows)
 
+
 def log_backtest_results(summary_df: pd.DataFrame) -> None:
     """Appends the current backtest run metrics and .env parameters to a history file."""
     record = {
@@ -206,6 +207,7 @@ def log_backtest_results(summary_df: pd.DataFrame) -> None:
     
     LOGGER.info(f"Appended run metrics to {BACKTEST_HISTORY_PATH}")
 
+
 def run_backtest() -> None:
     LOGGER.info(
         "Backtest: score >=%s | next-day open | %s-session hold | %.1fx ATR stop | entry/exit slippage %s/%s bps | costs %s bps",
@@ -234,19 +236,9 @@ def run_backtest() -> None:
     LOGGER.info("Completed %s files; %s failures.", len(files) - len(failures), len(failures))
     if failures:
         LOGGER.info("Failed tickers: %s", ", ".join(failures))
+        
     results = pd.DataFrame(all_signals)
-    if results.empty:
-        LOGGER.warning("No qualifying signals found.")
-        return
-    print("\nSIX-POINT SCREENER BACKTEST RESULTS")
-    print(_summary(results).to_markdown(index=False))
-
-
-if __name__ == "__main__":
-    run_backtest()
-
-# ... existing run_backtest code ...
-    results = pd.DataFrame(all_signals)
+    
     if results.empty:
         LOGGER.warning("No qualifying signals found.")
         return
@@ -257,3 +249,7 @@ if __name__ == "__main__":
     
     # NEW: Log to history
     log_backtest_results(summary_df)
+
+
+if __name__ == "__main__":
+    run_backtest()
