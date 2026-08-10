@@ -1,5 +1,6 @@
 [
   {
+    "trade_id": "BEML_2026-08-10",
     "ticker": "BEML",
     "status": "PENDING",
     "signal_date": "2026-08-10",
@@ -7,6 +8,7 @@
     "target_hold_days": 20
   },
   {
+    "trade_id": "POLYMED_2026-08-10",
     "ticker": "POLYMED",
     "status": "PENDING",
     "signal_date": "2026-08-10",
@@ -14,6 +16,7 @@
     "target_hold_days": 20
   },
   {
+    "trade_id": "BRIGADE_2026-08-10",
     "ticker": "BRIGADE",
     "status": "PENDING",
     "signal_date": "2026-08-10",
@@ -21,6 +24,7 @@
     "target_hold_days": 20
   },
   {
+    "trade_id": "SUMICHEM_2026-08-10",
     "ticker": "SUMICHEM",
     "status": "PENDING",
     "signal_date": "2026-08-10",
@@ -28,6 +32,7 @@
     "target_hold_days": 20
   },
   {
+    "trade_id": "RHIM_2026-08-10",
     "ticker": "RHIM",
     "status": "PENDING",
     "signal_date": "2026-08-10",
