@@ -2,41 +2,101 @@
   {
     "trade_id": "BEML_2026-08-10",
     "ticker": "BEML",
-    "status": "PENDING",
+    "status": "OPEN",
     "signal_date": "2026-08-10",
     "atr_at_signal": 63.3,
-    "target_hold_days": 20
+    "target_hold_days": 20,
+    "entry_date": "2026-08-11",
+    "entry_price": 1885.34,
+    "stop_price": 1758.74,
+    "sessions_held": 1
   },
   {
     "trade_id": "POLYMED_2026-08-10",
     "ticker": "POLYMED",
-    "status": "PENDING",
+    "status": "OPEN",
     "signal_date": "2026-08-10",
     "atr_at_signal": 58.73,
-    "target_hold_days": 20
+    "target_hold_days": 20,
+    "entry_date": "2026-08-11",
+    "entry_price": 1790.89,
+    "stop_price": 1673.43,
+    "sessions_held": 1
   },
   {
     "trade_id": "BRIGADE_2026-08-10",
     "ticker": "BRIGADE",
-    "status": "PENDING",
+    "status": "OPEN",
     "signal_date": "2026-08-10",
     "atr_at_signal": 18.61,
-    "target_hold_days": 20
+    "target_hold_days": 20,
+    "entry_date": "2026-08-11",
+    "entry_price": 611.36,
+    "stop_price": 574.14,
+    "sessions_held": 1
   },
   {
     "trade_id": "SUMICHEM_2026-08-10",
     "ticker": "SUMICHEM",
-    "status": "PENDING",
+    "status": "OPEN",
     "signal_date": "2026-08-10",
     "atr_at_signal": 20.69,
-    "target_hold_days": 20
+    "target_hold_days": 20,
+    "entry_date": "2026-08-11",
+    "entry_price": 564.13,
+    "stop_price": 522.75,
+    "sessions_held": 1
   },
   {
     "trade_id": "RHIM_2026-08-10",
     "ticker": "RHIM",
-    "status": "PENDING",
+    "status": "OPEN",
     "signal_date": "2026-08-10",
     "atr_at_signal": 14.46,
+    "target_hold_days": 20,
+    "entry_date": "2026-08-11",
+    "entry_price": 429.21,
+    "stop_price": 400.29,
+    "sessions_held": 1
+  },
+  {
+    "trade_id": "ZYDUSLIFE_2026-08-11",
+    "ticker": "ZYDUSLIFE",
+    "status": "PENDING",
+    "signal_date": "2026-08-11",
+    "atr_at_signal": 27.4,
+    "target_hold_days": 20
+  },
+  {
+    "trade_id": "JSWDULUX_2026-08-11",
+    "ticker": "JSWDULUX",
+    "status": "PENDING",
+    "signal_date": "2026-08-11",
+    "atr_at_signal": 96.21,
+    "target_hold_days": 20
+  },
+  {
+    "trade_id": "OIL_2026-08-11",
+    "ticker": "OIL",
+    "status": "PENDING",
+    "signal_date": "2026-08-11",
+    "atr_at_signal": 13.08,
+    "target_hold_days": 20
+  },
+  {
+    "trade_id": "MRPL_2026-08-11",
+    "ticker": "MRPL",
+    "status": "PENDING",
+    "signal_date": "2026-08-11",
+    "atr_at_signal": 7.88,
+    "target_hold_days": 20
+  },
+  {
+    "trade_id": "POLICYBZR_2026-08-11",
+    "ticker": "POLICYBZR",
+    "status": "PENDING",
+    "signal_date": "2026-08-11",
+    "atr_at_signal": 52.26,
     "target_hold_days": 20
   }
 ]
