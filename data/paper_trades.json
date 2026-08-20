@@ -178,26 +178,34 @@
   {
     "trade_id": "SARDAEN_2026-08-13",
     "ticker": "SARDAEN",
-    "status": "OPEN",
+    "status": "CLOSED",
     "signal_date": "2026-08-13",
     "atr_at_signal": 15.77,
     "target_hold_days": 20,
     "entry_date": "2026-08-14",
     "entry_price": 520.96,
     "stop_price": 489.42,
-    "sessions_held": 11
+    "sessions_held": 20,
+    "exit_date": "2026-08-19",
+    "exit_price": 510.77,
+    "exit_reason": "Time Exit",
+    "realized_pnl_pct": -1.96
   },
   {
     "trade_id": "BDL_2026-08-13",
     "ticker": "BDL",
-    "status": "OPEN",
+    "status": "CLOSED",
     "signal_date": "2026-08-13",
     "atr_at_signal": 34.2,
     "target_hold_days": 20,
     "entry_date": "2026-08-14",
     "entry_price": 1382.29,
     "stop_price": 1313.89,
-    "sessions_held": 11
+    "sessions_held": 16,
+    "exit_date": "2026-08-20",
+    "exit_price": 1310.61,
+    "exit_reason": "Stop Loss",
+    "realized_pnl_pct": -5.19
   },
   {
     "trade_id": "ELGIEQUIP_2026-08-14",
@@ -209,6 +217,6 @@
     "entry_date": "2026-08-17",
     "entry_price": 614.31,
     "stop_price": 580.33,
-    "sessions_held": 6
+    "sessions_held": 14
   }
 ]
