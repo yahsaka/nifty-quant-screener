@@ -210,13 +210,17 @@
   {
     "trade_id": "ELGIEQUIP_2026-08-14",
     "ticker": "ELGIEQUIP",
-    "status": "OPEN",
+    "status": "CLOSED",
     "signal_date": "2026-08-14",
     "atr_at_signal": 16.99,
     "target_hold_days": 20,
     "entry_date": "2026-08-17",
     "entry_price": 614.31,
     "stop_price": 580.33,
-    "sessions_held": 14
+    "sessions_held": 20,
+    "exit_date": "2026-08-24",
+    "exit_price": 620.4,
+    "exit_reason": "Time Exit",
+    "realized_pnl_pct": 0.99
   }
 ]
